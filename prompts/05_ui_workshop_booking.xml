@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <metadata>
+    <title>UI Implementation - Workshop Booking</title>
+    <phase>5</phase>
+    <difficulty>medium</difficulty>
+    <estimated_time>60-75 minutes</estimated_time>
+    <version>1.0</version>
+    <last_updated>2025-11-19</last_updated>
+    
+    <prerequisites>
+      <prerequisite>02_database_schema.xml completed</prerequisite>
+      <prerequisite>Shadcn UI Calendar component installed</prerequisite>
+    </prerequisites>
+  </metadata>
+
+  <thinking_configuration>
+    <claude_extended_thinking>
+      <enabled>true</enabled>
+      <reasoning>
+        The booking system needs to handle availability logic (time slots) and provide a rich search experience for workshops.
+        We need to balance the complexity of a full calendar system with the simplicity of an MVP.
+      </reasoning>
+      <budget_tokens>10000</budget_tokens>
+      <expected_thinking_depth>
+        Design the search filters (Location, Rating, Service Type).
+        Plan the booking flow: Select Workshop -> Select Service -> Select Date/Time -> Confirm.
+      </expected_thinking_depth>
+    </claude_extended_thinking>
+  </thinking_configuration>
+
+  <context>
+    <project_info>
+      <name>Hugo Automotriz</name>
+      <framework>Next.js 15</framework>
+    </project_info>
+
+    <objective>
+      <primary>
+        Build the Workshop Directory and Appointment Booking system.
+        Users should be able to find workshops, view their profiles (including ratings), and schedule appointments.
+        **Language**: Spanish (Bolivia). Currency: Bs (Bolivianos).
+      </primary>
+      <success_criteria>
+        <criterion>✅ Workshop search works with filters</criterion>
+        <criterion>✅ Workshop profile displays correct info and reviews</criterion>
+        <criterion>✅ Booking flow creates an appointment record in DB</criterion>
+        <criterion>✅ All UI text is in Spanish</criterion>
+      </success_criteria>
+    </objective>
+  </context>
+
+  <instructions>
+    <step number="1">
+      <title>Implement Workshop Directory</title>
+      <thinking_guidance>
+        Create a page `src/app/workshops/page.tsx`.
+        Needs a search bar ("Buscar taller...") and filter sidebar (Servicios, Calificación, Distancia).
+        Display results as a grid of `<WorkshopCard />`.
+      </thinking_guidance>
+      <action>
+        1. Create `WorkshopCard.tsx` (Image, Name, Rating, Location, "Book" button).
+        2. Implement `src/app/workshops/page.tsx` with dummy data or DB query.
+      </action>
+    </step>
+
+    <step number="2">
+      <title>Create Workshop Profile Page</title>
+      <thinking_guidance>
+        Page `src/app/workshops/[id]/page.tsx`.
+        Sections:
+        - Header: Images, Name, Address, Map.
+        - Services: List of services with prices.
+        - Reviews: List of user reviews.
+        - CTA: "Agendar Cita" (Book Appointment).
+      </thinking_guidance>
+      <action>
+        Implement the profile page layout.
+        Fetch data based on `params.id`.
+      </action>
+    </step>
+
+    <step number="3">
+      <title>Implement Booking Flow</title>
+      <thinking_guidance>
+        Use a Dialog or a dedicated page for booking.
+        Steps:
+        1. Select Service(s).
+        2. Select Date (Calendar).
+        3. Select Time Slot (Grid of buttons).
+        4. Confirm.
+      </thinking_guidance>
+      <commands>
+        <![CDATA[
+npx shadcn@latest add calendar popover select checkbox
+        ]]>
+      </commands>
+      <action>
+        Create `src/components/booking/BookingModal.tsx`.
+        Use `react-day-picker` (Shadcn Calendar) for date selection.
+        Generate time slots (e.g., 9:00 AM - 6:00 PM, 1-hour intervals).
+      </action>
+    </step>
+  </instructions>
+
+  <validation>
+    <execution_checklist>
+      <item>✅ Search filters update the results</item>
+      <item>✅ Calendar allows selecting valid dates only</item>
+      <item>✅ Booking submission creates a DB record</item>
+    </execution_checklist>
+  </validation>
+
+  <output_format>
+    <structure>
+      <section name="ui_components">List of created components</section>
+    </structure>
+    <format>Markdown</format>
+  </output_format>
+</prompt>

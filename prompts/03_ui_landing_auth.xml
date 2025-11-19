@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prompt>
+  <metadata>
+    <title>UI Implementation - Landing &amp; Auth</title>
+    <phase>3</phase>
+    <difficulty>medium</difficulty>
+    <estimated_time>45-60 minutes</estimated_time>
+    <version>1.0</version>
+    <last_updated>2025-11-19</last_updated>
+    
+    <prerequisites>
+      <prerequisite>01_setup_architecture.xml completed</prerequisite>
+      <prerequisite>Shadcn UI installed</prerequisite>
+    </prerequisites>
+  </metadata>
+
+  <thinking_configuration>
+    <claude_extended_thinking>
+      <enabled>true</enabled>
+      <reasoning>
+        The landing page is the first impression. It needs to be high-performance and visually striking ("premium"). 
+        Authentication needs to be secure and handle role-based redirection (Driver vs Mechanic vs Workshop).
+      </reasoning>
+      <budget_tokens>8000</budget_tokens>
+      <expected_thinking_depth>
+        Plan the component hierarchy for the landing page.
+        Design the auth flow: Sign up -> Role Selection -> Dashboard.
+      </expected_thinking_depth>
+    </claude_extended_thinking>
+  </thinking_configuration>
+
+  <context>
+    <project_info>
+      <name>Hugo Automotriz</name>
+      <framework>Next.js 15</framework>
+    </project_info>
+
+    <objective>
+      <primary>
+        Build a high-conversion Landing Page and a secure Authentication flow.
+        The design must be "premium automotive" (sleek, modern, trustworthy).
+        **CRITICAL**: All copy must be in Spanish (Bolivian context).
+      </primary>
+      <success_criteria>
+        <criterion>✅ Landing page scores 90+ on Lighthouse (Performance/SEO)</criterion>
+        <criterion>✅ Auth flow works for both Drivers and Partners</criterion>
+        <criterion>✅ Responsive design (Mobile First)</criterion>
+        <criterion>✅ All text is in Spanish</criterion>
+      </success_criteria>
+    </objective>
+  </context>
+
+  <instructions>
+    <step number="1">
+      <title>Implement Landing Page Components</title>
+      <thinking_guidance>
+        Break down the landing page into sections:
+        1. Hero: Value prop ("Tu copiloto en cada ruta de Bolivia"), CTA ("Pedir Asistencia", "Registrar Taller").
+        2. Services: Grid of cards showing Grúa, Batería, Mecánico, etc.
+        3. How it Works: 3-step process.
+        4. Testimonials/Trust: Social proof (use Bolivian names/locations).
+        5. Footer: Links.
+        Use Shadcn cards and buttons. Add subtle animations (Framer Motion).
+      </thinking_guidance>
+      <commands>
+        <![CDATA[
+npx shadcn@latest add navigation-menu accordion
+        ]]>
+      </commands>
+      <action>
+        Create `src/components/landing/Hero.tsx`, `Services.tsx`, `HowItWorks.tsx`.
+        Compose them in `src/app/page.tsx`.
+      </action>
+    </step>
+
+    <step number="2">
+      <title>Setup Authentication (Clerk)</title>
+      <thinking_guidance>
+        We will use Clerk for robust auth.
+        Need to configure the Middleware to protect dashboard routes.
+        Need a custom "Onboarding" flow to select a role after signup if not selected.
+      </thinking_guidance>
+      <commands>
+        <![CDATA[
+npm install @clerk/nextjs
+        ]]>
+      </commands>
+      <action>
+        1. Wrap app in `<ClerkProvider>`.
+        2. Create `middleware.ts` to protect `/dashboard/*`.
+        3. Create `src/app/sign-in/[[...sign-in]]/page.tsx` and `sign-up`.
+      </action>
+    </step>
+
+    <step number="3">
+      <title>Create Role Selection / Onboarding</title>
+      <thinking_guidance>
+        After signup, we need to know if the user is a Driver or a Workshop Owner.
+        Create an `/onboarding` page that updates the user's metadata or DB record.
+      </thinking_guidance>
+      <action>
+        Implement `/onboarding/page.tsx` with two large cards: "Soy Conductor" vs "Soy Taller".
+        On selection, update the user record in NeonDB (sync Clerk user to DB via webhook or direct action) and redirect to the appropriate dashboard.
+      </action>
+    </step>
+  </instructions>
+
+  <validation>
+    <execution_checklist>
+      <item>✅ Landing page renders with correct styles</item>
+      <item>✅ Sign In / Sign Up redirects correctly</item>
+      <item>✅ Onboarding flow captures user role</item>
+    </execution_checklist>
+  </validation>
+
+  <output_format>
+    <structure>
+      <section name="ui_preview">Description or screenshot of the landing page</section>
+    </structure>
+    <format>Markdown</format>
+  </output_format>
+</prompt>
