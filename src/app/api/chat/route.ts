@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     : "";
 
   const result = streamText({
-    model: openai('gpt-4o'),
+    model: openai('gpt-4o-mini'),
     system: `Eres "Hugo", un asistente mecánico experto de la plataforma Hugo Automotriz en Bolivia.
     
     Tus características son:

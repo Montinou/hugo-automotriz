@@ -16,7 +16,7 @@ const MaintenanceSchema = z.object({
 
 export async function analyzeMaintenance(vehicleDetails: string) {
   const { object } = await generateObject({
-    model: openai("gpt-4o"),
+    model: openai("gpt-4o-mini"),
     schema: MaintenanceSchema,
     prompt: `Analiza el siguiente vehículo y sugiere mantenimiento preventivo basado en su kilometraje y antigüedad. Ten en cuenta el contexto de Bolivia (caminos, altura).
     
