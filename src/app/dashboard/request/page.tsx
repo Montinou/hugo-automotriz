@@ -107,14 +107,19 @@ export default function RequestPage() {
       {step === "service" && (
         <div className="space-y-4">
           <ServiceSelector selected={service} onSelect={setService} />
-          <Button 
-            className="w-full" 
-            size="lg" 
-            disabled={!service}
-            onClick={() => setStep("summary")}
-          >
-            Continuar
-          </Button>
+          <div className="flex gap-4">
+            <Button 
+              className="flex-1" 
+              size="lg" 
+              disabled={!service}
+              onClick={() => setStep("summary")}
+            >
+              Continuar
+            </Button>
+          </div>
+          <p className="text-xs text-center text-muted-foreground">
+            ¿Necesitas registrar un vehículo? <a href="/dashboard/driver/settings" className="underline text-primary">Ve a Configuración</a>
+          </p>
         </div>
       )}
 

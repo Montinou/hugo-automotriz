@@ -10,7 +10,7 @@ export const serviceTypeEnum = pgEnum("service_type", ["tow", "battery", "tire",
 // Users Table
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  stackId: text("stack_id").notNull().unique(),
+  stackId: text("clerk_id").notNull().unique(),
   email: text("email").notNull().unique(),
   role: userRoleEnum("role").default("driver").notNull(),
   fullName: text("full_name"),
