@@ -2,7 +2,7 @@ import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DollarSign, Users, Calendar, Star } from "lucide-react";
+import { DollarSign, Users, Calendar, Star, Car } from "lucide-react";
 import { db } from "@/db";
 import { appointments, users, workshops } from "@/db/schema";
 import { stackServerApp } from "@/stack";
