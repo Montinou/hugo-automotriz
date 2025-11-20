@@ -10,11 +10,11 @@ export function Hero() {
           <div className="flex flex-col justify-center space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-                Tu Copiloto en Cada Ruta de Bolivia
+                Tu Copiloto en Cada Ruta
               </h1>
               <p className="max-w-[600px] text-muted-foreground md:text-xl">
                 Asistencia vehicular inmediata y gestión de talleres confiables. 
-                Desde una llanta pinchada en el Urubó hasta un mantenimiento completo en La Paz.
+                Desde una llanta pinchada en el Urubó hasta un mantenimiento completo en Santa Cruz.
               </p>
             </div>
             <div className="flex flex-col gap-4 min-[400px]:flex-row">

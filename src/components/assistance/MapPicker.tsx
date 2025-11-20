@@ -38,9 +38,17 @@ function LocationMarker({ onLocationSelect }: { onLocationSelect: (lat: number, 
   );
 }
 
-export default function MapPicker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
-  // Default to Santa Cruz de la Sierra, Bolivia
-  const defaultCenter: [number, number] = [-17.7833, -63.1821];
+export default function MapPicker({ 
+  onLocationSelect,
+  initialLocation 
+}: { 
+  onLocationSelect: (lat: number, lng: number) => void;
+  initialLocation?: { lat: number; lng: number };
+}) {
+  // Default to Santa Cruz de la Sierra, Bolivia or initial location
+  const defaultCenter: [number, number] = initialLocation 
+    ? [initialLocation.lat, initialLocation.lng] 
+    : [-17.7833, -63.1821];
 
   return (
     <div className="h-[400px] w-full rounded-lg overflow-hidden border border-border relative z-0">
@@ -50,6 +58,9 @@ export default function MapPicker({ onLocationSelect }: { onLocationSelect: (lat
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <LocationMarker onLocationSelect={onLocationSelect} />
+        {initialLocation && (
+          <Marker position={[initialLocation.lat, initialLocation.lng]} icon={icon} />
+        )}
       </MapContainer>
     </div>
   );

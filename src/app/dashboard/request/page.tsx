@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ServiceSelector, ServiceType } from "@/components/assistance/ServiceSelector";
 import { TrackingView } from "@/components/assistance/TrackingView";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { createAssistanceRequest } from "@/app/actions/request";
 
 // Dynamically import MapPicker to avoid SSR issues with Leaflet
 const MapPicker = dynamic(() => import("@/components/assistance/MapPicker"), {
@@ -22,24 +24,47 @@ export default function RequestPage() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [service, setService] = useState<ServiceType | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [requestId, setRequestId] = useState<number | null>(null);
+  
+  const { latitude, longitude, loading: geoLoading } = useGeolocation();
+
+  // Auto-set location when geolocation is available and not yet set manually
+  useEffect(() => {
+    if (latitude && longitude && !location) {
+      setLocation({ lat: latitude, lng: longitude });
+    }
+  }, [latitude, longitude, location]);
 
   const handleLocationSelect = (lat: number, lng: number) => {
     setLocation({ lat, lng });
   };
 
   const handleRequest = async () => {
+    if (!location || !service) return;
+
     setIsSearching(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    setIsSearching(false);
-    setStep("tracking");
-    toast.success("¡Proveedor encontrado!");
+    try {
+      const request = await createAssistanceRequest({
+        latitude: location.lat,
+        longitude: location.lng,
+        serviceType: service,
+      });
+      
+      setRequestId(request.id);
+      setStep("tracking");
+      toast.success("¡Solicitud enviada! Buscando proveedores cercanos...");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al crear la solicitud. Intenta nuevamente.");
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  if (step === "tracking") {
+  if (step === "tracking" && requestId) {
     return (
       <div className="container max-w-md mx-auto py-6 px-4">
-        <TrackingView startTime={new Date()} estimatedDurationMinutes={15} />
+        <TrackingView requestId={requestId} startTime={new Date()} estimatedDurationMinutes={15} />
       </div>
     );
   }
@@ -61,15 +86,20 @@ export default function RequestPage() {
 
       {step === "location" && (
         <div className="space-y-4">
-          <p className="text-muted-foreground">Mueve el pin a tu ubicación exacta.</p>
-          <MapPicker onLocationSelect={handleLocationSelect} />
+          <p className="text-muted-foreground">
+            {geoLoading ? "Obteniendo tu ubicación..." : "Mueve el pin a tu ubicación exacta."}
+          </p>
+          <MapPicker 
+            onLocationSelect={handleLocationSelect} 
+            initialLocation={location || undefined}
+          />
           <Button 
             className="w-full" 
             size="lg" 
             disabled={!location}
             onClick={() => setStep("service")}
           >
-            Confirmar Ubicación
+            {location ? "Confirmar Ubicación" : "Selecciona una ubicación"}
           </Button>
         </div>
       )}
@@ -120,7 +150,12 @@ export default function RequestPage() {
               onClick={handleRequest} 
               disabled={isSearching}
             >
-              {isSearching ? "Buscando conductor..." : "Confirmar Pedido"}
+              {isSearching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creando solicitud...
+                </>
+              ) : "Confirmar Pedido"}
             </Button>
           </CardFooter>
         </Card>
