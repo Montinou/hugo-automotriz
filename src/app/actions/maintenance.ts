@@ -15,15 +15,20 @@ const MaintenanceSchema = z.object({
 });
 
 export async function analyzeMaintenance(vehicleDetails: string) {
-  const { object } = await generateObject({
-    model: openai("gpt-4o-mini"),
-    schema: MaintenanceSchema,
-    prompt: `Analiza el siguiente vehículo y sugiere mantenimiento preventivo basado en su kilometraje y antigüedad. Ten en cuenta el contexto de Bolivia (caminos, altura).
-    
-    Vehículo: ${vehicleDetails}
-    
-    Genera una lista de servicios recomendados.`,
-  });
+  try {
+    const { object } = await generateObject({
+      model: openai("gpt-4o-mini"),
+      schema: MaintenanceSchema,
+      prompt: `Analiza el siguiente vehículo y sugiere mantenimiento preventivo basado en su kilometraje y antigüedad. Ten en cuenta el contexto de Bolivia (caminos, altura).
+      
+      Vehículo: ${vehicleDetails}
+      
+      Genera una lista de servicios recomendados.`,
+    });
 
-  return object;
+    return object;
+  } catch (error) {
+    console.error("Error in analyzeMaintenance:", error);
+    throw new Error("Failed to analyze maintenance needs. Please check server logs.");
+  }
 }

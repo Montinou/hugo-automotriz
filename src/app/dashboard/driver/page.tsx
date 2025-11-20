@@ -11,10 +11,12 @@ export default function DriverDashboard() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Hola, Conductor</h1>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Registrar Vehículo
-        </Button>
+        <Link href="/dashboard/driver/settings">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Registrar Vehículo
+          </Button>
+        </Link>
       </div>
 
       {/* AI Insights */}
