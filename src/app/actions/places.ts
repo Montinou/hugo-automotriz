@@ -27,3 +27,45 @@ export async function findNearbyServices(lat: number, lng: number, type: string 
     return { error: "Internal server error" };
   }
 }
+
+export async function getPlacePredictions(input: string) {
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey) return { error: "Configuration error" };
+
+  try {
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}&language=es&components=country:bo`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+      console.error("Google Places Autocomplete Error:", data);
+      return { error: "Failed to fetch predictions" };
+    }
+
+    return { predictions: data.predictions || [] };
+  } catch (error) {
+    console.error("Error fetching predictions:", error);
+    return { error: "Internal server error" };
+  }
+}
+
+export async function getPlaceDetails(placeId: string) {
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey) return { error: "Configuration error" };
+
+  try {
+    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry,formatted_address&key=${apiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status !== "OK") {
+      console.error("Google Places Details Error:", data);
+      return { error: "Failed to fetch details" };
+    }
+
+    return { result: data.result };
+  } catch (error) {
+    console.error("Error fetching details:", error);
+    return { error: "Internal server error" };
+  }
+}

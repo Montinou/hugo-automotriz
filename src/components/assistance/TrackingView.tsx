@@ -7,22 +7,45 @@ import { Progress } from "@/components/ui/progress";
 import { Phone, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export function TrackingView() {
-  const [progress, setProgress] = useState(10);
+interface TrackingViewProps {
+  startTime?: Date;
+  estimatedDurationMinutes?: number;
+}
+
+export function TrackingView({ 
+  startTime = new Date(), 
+  estimatedDurationMinutes = 15 
+}: TrackingViewProps) {
+  const [progress, setProgress] = useState(0);
+  const [minutesRemaining, setMinutesRemaining] = useState(estimatedDurationMinutes);
   const [status, setStatus] = useState("En camino");
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          setStatus("Ha llegado");
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 2000);
+    const totalDurationMs = estimatedDurationMinutes * 60 * 1000;
+    
+    const updateTimer = () => {
+      const now = new Date();
+      const elapsed = now.getTime() - startTime.getTime();
+      const remaining = Math.max(0, totalDurationMs - elapsed);
+      
+      const newProgress = Math.min(100, (elapsed / totalDurationMs) * 100);
+      const newMinutes = Math.ceil(remaining / 60000);
+
+      setProgress(newProgress);
+      setMinutesRemaining(newMinutes);
+
+      if (newProgress >= 100) {
+        setStatus("Ha llegado");
+      }
+    };
+
+    // Update immediately
+    updateTimer();
+
+    // Update every second
+    const timer = setInterval(updateTimer, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [startTime, estimatedDurationMinutes]);
 
   return (
     <div className="space-y-6">
@@ -35,7 +58,7 @@ export function TrackingView() {
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center justify-center space-y-2">
             <div className="text-4xl font-bold tabular-nums">
-              {status === "Ha llegado" ? "0" : Math.max(1, Math.ceil((100 - progress) / 10))} min
+              {status === "Ha llegado" ? "0" : minutesRemaining} min
             </div>
             <Progress value={progress} className="w-full h-2" />
           </div>

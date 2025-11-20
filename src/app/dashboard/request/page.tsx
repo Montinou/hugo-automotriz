@@ -39,7 +39,7 @@ export default function RequestPage() {
   if (step === "tracking") {
     return (
       <div className="container max-w-md mx-auto py-6 px-4">
-        <TrackingView />
+        <TrackingView startTime={new Date()} estimatedDurationMinutes={15} />
       </div>
     );
   }

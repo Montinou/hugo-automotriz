@@ -70,7 +70,7 @@ export default function ProjectPage() {
               v1.0.0 Release
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Hugo Automotriz
+              Asistencia Vehicular AI
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Plataforma inteligente de asistencia vehicular y gestión de talleres potenciada por Inteligencia Artificial.

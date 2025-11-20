@@ -20,8 +20,11 @@ interface WorkshopSettingsFormProps {
   } | null;
 }
 
+import { AddressAutocomplete } from "@/components/dashboard/AddressAutocomplete";
+
 export function WorkshopSettingsForm({ initialData }: WorkshopSettingsFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [address, setAddress] = useState(initialData?.address || "");
   const [coordinates, setCoordinates] = useState<{ lat: string; lng: string } | null>(
     initialData?.latitude && initialData?.longitude 
       ? { lat: initialData.latitude, lng: initialData.longitude } 
@@ -104,14 +107,18 @@ export function WorkshopSettingsForm({ initialData }: WorkshopSettingsFormProps)
 
       <div className="grid gap-2">
         <Label htmlFor="address">Dirección</Label>
+        <input type="hidden" name="address" value={address} />
         <div className="flex gap-2">
-          <Input 
-            id="address" 
-            name="address" 
-            defaultValue={initialData?.address || ""} 
-            placeholder="Av. Banzer 4to Anillo..." 
-            required 
-          />
+          <div className="flex-1">
+            <AddressAutocomplete 
+              defaultValue={address}
+              onAddressSelect={(newAddress, lat, lng) => {
+                setAddress(newAddress);
+                setCoordinates({ lat, lng });
+                toast.success("Ubicación actualizada desde Google Maps");
+              }}
+            />
+          </div>
           <Button 
             type="button" 
             variant="outline" 

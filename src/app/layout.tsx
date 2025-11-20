@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hugo Automotriz - Tu Copiloto en Bolivia",
+  title: "Asistencia Vehicular AI - Tu Copiloto en Bolivia",
   description: "Asistencia vehicular inmediata y gestión de talleres en Bolivia. Grúas, mecánicos y mantenimiento al alcance de tu mano.",
 };
 
