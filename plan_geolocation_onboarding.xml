@@ -1,0 +1,142 @@
+<prompt>
+  <metadata>
+    <title>Implement Geolocation, Google Places API & Fix Onboarding</title>
+    <phase>Execution</phase>
+    <difficulty>medium</difficulty>
+    <estimated_time>60-90 minutes</estimated_time>
+    <version>1.0</version>
+    <last_updated>2025-11-19</last_updated>
+    <prerequisites>
+      <prerequisite>Google Places API Key (GOOGLE_PLACES_API_KEY in .env.local)</prerequisite>
+      <prerequisite>Stack Auth configured</prerequisite>
+    </prerequisites>
+  </metadata>
+
+  <thinking_configuration>
+    <claude_extended_thinking>
+      <enabled>true</enabled>
+      <reasoning>
+        This task involves integrating a third-party API (Google Places) with user geolocation, which requires handling async data, permissions, and potential errors. 
+        Additionally, debugging the onboarding redirect requires analyzing the auth flow and database state synchronization.
+        Removing mocks requires identifying all hardcoded data and replacing it with real DB data or context.
+      </reasoning>
+      <budget_tokens>10000</budget_tokens>
+      <expected_thinking_depth>
+        Analyze the current auth flow to pinpoint the premature redirect.
+        Design the Geolocation component to be robust (handle permission denial).
+        Plan the Google Places API integration (server-side vs client-side proxy).
+      </expected_thinking_depth>
+    </claude_extended_thinking>
+  </thinking_configuration>
+
+  <context>
+    <project_info>
+      <name>Hugo Automotriz</name>
+      <current_location>/Users/agustinmontoya/Projectos/hugo-automotriz</current_location>
+      <framework>Next.js 16.0.3</framework>
+      <status>Development</status>
+    </project_info>
+
+    <objective>
+      <primary>
+        Fix the onboarding flow to prevent premature redirects to the dashboard.
+        Remove mock data from the application, specifically in the AI Mechanic page.
+        Implement user geolocation and integrate Google Places API to recommend nearby services.
+      </primary>
+      <success_criteria>
+        <criterion>✅ User is correctly redirected to onboarding if they haven't selected a role.</criterion>
+        <criterion>✅ Mock vehicle data is removed and replaced with real data (or a placeholder that prompts for input).</criterion>
+        <criterion>✅ User's location is detected (with permission).</criterion>
+        <criterion>✅ Nearby workshops/services are fetched from Google Places API and displayed.</criterion>
+      </success_criteria>
+    </objective>
+  </context>
+
+  <instructions>
+    <step number="1">
+      <title>Fix Onboarding Redirect Logic</title>
+      <thinking_guidance>
+        Analyze `src/app/dashboard/layout.tsx`. Currently, it only checks `if (!dbUser)`.
+        If a user exists but has no role (incomplete onboarding), they might be allowed in.
+        We need to check `if (!dbUser || !dbUser.role)` and redirect to `/onboarding`.
+        Also, verify if `stack.ts` `afterSignUp` is correctly pointing to `/onboarding`.
+      </thinking_guidance>
+      <action>
+        Modify `src/app/dashboard/layout.tsx` to check for `dbUser.role`.
+        If `role` is missing, redirect to `/onboarding`.
+      </action>
+    </step>
+
+    <step number="2">
+      <title>Remove Mock Data</title>
+      <thinking_guidance>
+        Identify mock data in `src/app/dashboard/mechanic-ai/page.tsx`.
+        The `mockVehicleContext` should be replaced.
+        Since we might not have vehicle data yet, we should fetch it from the DB if available, or pass an empty context/ask the user to provide details in the chat.
+      </thinking_guidance>
+      <action>
+        Update `src/app/dashboard/mechanic-ai/page.tsx`:
+        1. Remove `mockVehicleContext`.
+        2. Fetch user's vehicles from DB (if any).
+        3. Pass real vehicle info or a generic prompt to `ChatInterface`.
+      </action>
+    </step>
+
+    <step number="3">
+      <title>Implement Google Places API Client</title>
+      <thinking_guidance>
+        Create a utility to query Google Places API.
+        We need a Server Action or API route to hide the API key.
+        The endpoint should accept `lat`, `lng`, and `query` (e.g., "mechanic", "towing").
+      </thinking_guidance>
+      <action>
+        Create `src/lib/google-places.ts` (or `src/app/actions/places.ts`) with a function `findNearbyServices(lat, lng, type)`.
+        Use `fetch` to call `https://maps.googleapis.com/maps/api/place/nearbysearch/json`.
+      </action>
+    </step>
+
+    <step number="4">
+      <title>Create Geolocation Component</title>
+      <thinking_guidance>
+        We need a client component to access `navigator.geolocation`.
+        It should handle:
+        - Requesting permission.
+        - Loading state.
+        - Error state (denied/unavailable).
+        - Calling the server action with coordinates.
+      </thinking_guidance>
+      <action>
+        Create `src/components/dashboard/NearbyServices.tsx`.
+        It should have a button "Buscar servicios cercanos" or auto-detect on mount (with user consent UI).
+        Display the list of results returned by the server action.
+      </action>
+    </step>
+
+    <step number="5">
+      <title>Integrate Nearby Services into Dashboard</title>
+      <thinking_guidance>
+        Place the `NearbyServices` component in the dashboard, likely in the Driver view (`src/app/dashboard/driver/page.tsx` or similar).
+      </thinking_guidance>
+      <action>
+        Add `NearbyServices` to the driver dashboard.
+      </action>
+    </step>
+  </instructions>
+
+  <validation>
+    <execution_checklist>
+      <item>✅ Onboarding redirects correctly for users without a role.</item>
+      <item>✅ No "Toyota Hilux 2020" mock data visible in AI chat.</item>
+      <item>✅ Browser asks for location permission.</item>
+      <item>✅ Google Places API returns real results for the user's location.</item>
+    </execution_checklist>
+  </validation>
+
+  <output_format>
+    <structure>
+      <section name="execution_log">Detailed log of changes.</section>
+      <section name="results">Verification results.</section>
+    </structure>
+    <format>Markdown</format>
+  </output_format>
+</prompt>

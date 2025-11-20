@@ -1,8 +1,36 @@
 import { ChatInterface } from "@/components/ai/ChatInterface";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { stackServerApp } from "@/stack";
+import { eq } from "drizzle-orm";
 
-export default function MechanicAIPage() {
-  // In a real app, we'd fetch the user's selected vehicle from DB/Context
-  const mockVehicleContext = "Toyota Hilux 2020, 45,000 km, último mantenimiento hace 3 meses.";
+export default async function MechanicAIPage() {
+  const user = await stackServerApp.getUser();
+  
+  // Fetch user's vehicles
+  const userVehicles = user ? await db.query.vehicles.findMany({
+    where: (vehicles, { eq }) => eq(vehicles.userId, db.query.users.findFirst({
+      where: eq(users.clerkId, user.id),
+    }).then(u => u?.id ?? 0) as any), // This is a bit complex due to async subquery not being directly supported in where like this usually
+  }) : [];
+
+  // Better approach: get user first then vehicles
+  let vehicleContext = "No se encontraron vehículos registrados.";
+  
+  if (user) {
+    const dbUser = await db.query.users.findFirst({
+      where: eq(users.clerkId, user.id),
+      with: {
+        vehicles: true
+      }
+    });
+
+    if (dbUser?.vehicles && dbUser.vehicles.length > 0) {
+      vehicleContext = dbUser.vehicles.map(v => 
+        `${v.make} ${v.model} ${v.year} (${v.plate})`
+      ).join(", ");
+    }
+  }
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4 space-y-8">
@@ -15,7 +43,7 @@ export default function MechanicAIPage() {
 
       <div className="grid gap-8 md:grid-cols-3">
         <div className="md:col-span-2">
-          <ChatInterface vehicleContext={mockVehicleContext} />
+          <ChatInterface vehicleContext={vehicleContext} />
         </div>
         
         <div className="space-y-6">

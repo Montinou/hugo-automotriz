@@ -4,6 +4,7 @@ import { Plus, Car, Calendar, History, MapPin } from "lucide-react";
 import Link from "next/link";
 
 import { MaintenanceCard } from "@/components/dashboard/MaintenanceCard";
+import { NearbyServices } from "@/components/dashboard/NearbyServices";
 
 export default function DriverDashboard() {
   return (
@@ -21,6 +22,9 @@ export default function DriverDashboard() {
         vehicleName="Toyota Hilux 2020" 
         details="Toyota Hilux 2020, 45,000 km, uso en ciudad y campo, último mantenimiento hace 6 meses." 
       />
+
+      {/* Nearby Services */}
+      <NearbyServices />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Vehicles Card */}

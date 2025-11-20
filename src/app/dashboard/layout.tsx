@@ -22,7 +22,7 @@ export default async function DashboardLayout({
   });
 
   // Default to driver if not found (or redirect to onboarding)
-  if (!dbUser) {
+  if (!dbUser || !dbUser.role) {
     redirect("/onboarding");
   }
 
