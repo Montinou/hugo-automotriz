@@ -7,7 +7,7 @@ import { Bot, Car, Database, Layers, LayoutDashboard, Server, Shield, Wrench, Za
 export default function ProjectPage() {
   const architectureChart = `
     graph TD
-      Client[Client (Browser)] -->|Next.js App Router| Server[Server Components]
+      Client["Client (Browser)"] -->|Next.js App Router| Server[Server Components]
       Client -->|Server Actions| Actions[Backend Logic]
       
       subgraph "Backend Services"
