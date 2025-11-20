@@ -11,7 +11,7 @@ export async function acceptRequest(requestId: number) {
   if (!user) throw new Error("Unauthorized");
 
   const dbUser = await db.query.users.findFirst({
-    where: eq(users.clerkId, user.id),
+    where: eq(users.stackId, user.id),
   });
 
   if (!dbUser) throw new Error("User not found");
@@ -126,7 +126,7 @@ export async function addService(formData: FormData) {
   if (!user) throw new Error("Unauthorized");
 
   const dbUser = await db.query.users.findFirst({
-    where: eq(users.clerkId, user.id),
+    where: eq(users.stackId, user.id),
   });
   if (!dbUser) throw new Error("User not found");
 
@@ -168,7 +168,7 @@ export async function updateWorkshopSettings(formData: FormData) {
   if (!user) throw new Error("Unauthorized");
 
   const dbUser = await db.query.users.findFirst({
-    where: eq(users.clerkId, user.id),
+    where: eq(users.stackId, user.id),
   });
   if (!dbUser) throw new Error("User not found");
 

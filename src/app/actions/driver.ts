@@ -15,7 +15,7 @@ export async function updateDriverProfile(formData: FormData) {
 
   await db.update(users)
     .set({ fullName, phone, updatedAt: new Date() })
-    .where(eq(users.clerkId, user.id));
+    .where(eq(users.stackId, user.id));
 
   revalidatePath("/dashboard/driver/settings");
 }
@@ -85,7 +85,7 @@ export async function deleteVehicle(vehicleId: number) {
     }
   });
 
-  if (!vehicle || vehicle.user.clerkId !== user.id) {
+  if (!vehicle || vehicle.user.stackId !== user.id) {
     throw new Error("Unauthorized or vehicle not found");
   }
 

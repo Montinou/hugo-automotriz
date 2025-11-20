@@ -10,7 +10,7 @@ export default async function MechanicAIPage() {
   // Fetch user's vehicles
   const userVehicles = user ? await db.query.vehicles.findMany({
     where: (vehicles, { eq }) => eq(vehicles.userId, db.query.users.findFirst({
-      where: eq(users.clerkId, user.id),
+      where: eq(users.stackId, user.id),
     }).then(u => u?.id ?? 0) as any), // This is a bit complex due to async subquery not being directly supported in where like this usually
   }) : [];
 
@@ -19,7 +19,7 @@ export default async function MechanicAIPage() {
   
   if (user) {
     const dbUser = await db.query.users.findFirst({
-      where: eq(users.clerkId, user.id),
+      where: eq(users.stackId, user.id),
       with: {
         vehicles: true
       }
