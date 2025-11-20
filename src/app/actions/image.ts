@@ -3,11 +3,11 @@
 import OpenAI from "openai";
 import { put } from "@vercel/blob";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function generateWorkshopImage(prompt: string, workshopName: string) {
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
   try {
     // 1. Generate image with DALL-E 3
     const response = await client.images.generate({

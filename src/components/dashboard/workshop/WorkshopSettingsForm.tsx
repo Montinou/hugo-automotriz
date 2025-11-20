@@ -1,3 +1,5 @@
+"use client";
+
 import { useTransition, useState, useRef } from "react";
 import { updateWorkshopSettings } from "@/app/actions/workshop";
 import { generateWorkshopImage } from "@/app/actions/image";
