@@ -64,7 +64,7 @@ export default function ProjectPage() {
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Documentación del Proyecto</h1>
         <p className="text-xl text-muted-foreground">
-          Asistencia Vehicular AI (Hugo Automotriz) - Plataforma de Asistencia y Gestión
+          Asistencia Vehicular AI - Plataforma de Asistencia y Gestión
         </p>
       </div>
 
