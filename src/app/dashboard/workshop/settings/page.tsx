@@ -41,6 +41,7 @@ export default async function WorkshopSettingsPage() {
             address: workshop.address,
             latitude: workshop.latitude,
             longitude: workshop.longitude,
+            imageUrl: workshop.imageUrl,
           } : null} />
         </CardContent>
       </Card>

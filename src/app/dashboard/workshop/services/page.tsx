@@ -3,6 +3,9 @@ import { users, workshops } from "@/db/schema";
 import { stackServerApp } from "@/stack";
 import { eq } from "drizzle-orm";
 import { ServiceManager } from "@/components/dashboard/workshop/ServiceManager";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Package } from "lucide-react";
 
 export default async function WorkshopServicesPage() {
   const user = await stackServerApp.getUser();
@@ -33,9 +36,19 @@ export default async function WorkshopServicesPage() {
   }
 
   return (
-    <ServiceManager services={workshop.services.map(s => ({
-      ...s,
-      price: s.price.toString(), // Convert decimal to string for client component
-    }))} />
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button asChild variant="outline">
+          <Link href="/dashboard/workshop/inventory">
+            <Package className="mr-2 h-4 w-4" />
+            Gestionar Inventario
+          </Link>
+        </Button>
+      </div>
+      <ServiceManager services={workshop.services.map(s => ({
+        ...s,
+        price: s.price.toString(), // Convert decimal to string for client component
+      }))} />
+    </div>
   );
 }

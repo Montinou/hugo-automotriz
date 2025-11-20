@@ -187,6 +187,7 @@ export async function updateWorkshopSettings(formData: FormData) {
       address,
       latitude: latitude,
       longitude: longitude,
+      imageUrl: formData.get("imageUrl") as string,
     })
     .where(eq(workshops.ownerId, dbUser.id));
 

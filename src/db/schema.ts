@@ -106,6 +106,20 @@ export const reviews = pgTable("reviews", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Products Table (Workshop Inventory)
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  workshopId: integer("workshop_id").references(() => workshops.id).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  stock: integer("stock").default(0).notNull(),
+  imageUrl: text("image_url"),
+  category: text("category"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   vehicles: many(vehicles),
