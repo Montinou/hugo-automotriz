@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Car, Clock, CheckCircle } from "lucide-react";
-import { acceptRequest, completeRequest } from "@/app/actions/workshop";
+import { acceptRequest, completeRequest, cancelRequest } from "@/app/actions/workshop";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -140,12 +140,19 @@ function RequestCard({ request, type }: { request: any, type: 'pending' | 'activ
             <Button className="w-full">Aceptar Ticket</Button>
           </form>
         ) : (
-          <form action={completeRequest.bind(null, request.id)} className="w-full">
-            <Button className="w-full bg-green-600 hover:bg-green-700">
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Finalizar Trabajo
-            </Button>
-          </form>
+          <div className="w-full space-y-2">
+            <form action={completeRequest.bind(null, request.id)} className="w-full">
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Finalizar Trabajo
+              </Button>
+            </form>
+            <form action={cancelRequest.bind(null, request.id)} className="w-full">
+              <Button variant="outline" className="w-full text-destructive hover:text-destructive">
+                Cancelar
+              </Button>
+            </form>
+          </div>
         )}
       </CardFooter>
     </Card>

@@ -56,10 +56,17 @@ export default async function DriverHistoryPage() {
                 <CardHeader className="p-4 pb-2">
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-base font-medium capitalize">
-                      {req.type === 'tow' ? 'Grúa' : req.type}
+                      {req.type === 'tow' ? 'Grúa' : 
+                       req.type === 'battery' ? 'Batería' :
+                       req.type === 'tire' ? 'Llanta' :
+                       req.type === 'fuel' ? 'Gasolina' :
+                       req.type === 'mechanic' ? 'Mecánico' : req.type}
                     </CardTitle>
                     <Badge variant={req.status === 'completed' ? 'default' : 'secondary'}>
-                      {req.status}
+                      {req.status === 'completed' ? 'Completado' : 
+                       req.status === 'pending' ? 'Pendiente' : 
+                       req.status === 'cancelled' ? 'Cancelado' : 
+                       req.status === 'in_progress' ? 'En Progreso' : req.status}
                     </Badge>
                   </div>
                   <CardDescription className="text-xs">
@@ -93,7 +100,10 @@ export default async function DriverHistoryPage() {
                       {app.service.name}
                     </CardTitle>
                     <Badge variant={app.status === 'completed' ? 'default' : 'outline'}>
-                      {app.status}
+                      {app.status === 'completed' ? 'Completado' : 
+                       app.status === 'pending' ? 'Pendiente' : 
+                       app.status === 'cancelled' ? 'Cancelado' : 
+                       app.status === 'confirmed' ? 'Confirmado' : app.status}
                     </Badge>
                   </div>
                   <CardDescription className="text-xs">

@@ -19,6 +19,14 @@ const MapPicker = dynamic(() => import("@/components/assistance/MapPicker"), {
 
 type Step = "location" | "service" | "summary" | "tracking";
 
+const SERVICE_DETAILS: Record<ServiceType, { label: string; price: number }> = {
+  tow: { label: "Grúa", price: 250 },
+  battery: { label: "Batería", price: 100 },
+  tire: { label: "Llanta Baja", price: 80 },
+  fuel: { label: "Gasolina", price: 120 },
+  mechanic: { label: "Mecánico", price: 150 },
+};
+
 export default function RequestPage() {
   const [step, setStep] = useState<Step>("location");
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -140,8 +148,8 @@ export default function RequestPage() {
             </div>
             
             <div className="flex justify-between items-center py-4 border-t border-b">
-              <span className="font-medium capitalize">{service}</span>
-              <span className="font-bold text-lg">Bs. 150.00</span>
+              <span className="font-medium capitalize">{service && SERVICE_DETAILS[service].label}</span>
+              <span className="font-bold text-lg">Bs. {service && SERVICE_DETAILS[service].price.toFixed(2)}</span>
             </div>
             
             <p className="text-xs text-muted-foreground text-center">

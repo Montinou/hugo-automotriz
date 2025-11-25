@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Phone, ShieldCheck, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getRequestStatus } from "@/app/actions/request";
+import { getRequestStatus, cancelRequest } from "@/app/actions/request";
 import { toast } from "sonner";
 import { RatingModal } from "./RatingModal";
 
@@ -25,6 +25,18 @@ export function TrackingView({
   const [minutesRemaining, setMinutesRemaining] = useState(estimatedDurationMinutes);
   const [status, setStatus] = useState<string>("pending");
   const [provider, setProvider] = useState<any>(null);
+
+  const handleCancel = async () => {
+    try {
+      await cancelRequest(requestId);
+      setStatus("cancelled");
+      toast.success("Solicitud cancelada");
+      // Redirect or update UI
+      window.location.href = "/dashboard/request";
+    } catch (error) {
+      toast.error("Error al cancelar la solicitud");
+    }
+  };
 
   useEffect(() => {
     const pollStatus = async () => {
@@ -84,7 +96,7 @@ export function TrackingView({
             <h3 className="text-xl font-bold">Solicitud Enviada</h3>
             <p className="text-muted-foreground">Tu solicitud está visible para los talleres cercanos. Esperando que un mecánico acepte el trabajo.</p>
           </div>
-          <Button variant="outline" className="mt-4 text-destructive">Cancelar Solicitud</Button>
+          <Button variant="outline" className="mt-4 text-destructive" onClick={handleCancel}>Cancelar Solicitud</Button>
         </CardContent>
       </Card>
     );
@@ -128,7 +140,7 @@ export function TrackingView({
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="w-full text-destructive hover:text-destructive">
+            <Button variant="outline" className="w-full text-destructive hover:text-destructive" onClick={handleCancel}>
               Cancelar
             </Button>
             <Button className="w-full">

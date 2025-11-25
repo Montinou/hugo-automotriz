@@ -7,19 +7,24 @@ import { Bot, Car, Database, Layers, LayoutDashboard, Server, Shield, Wrench, Za
 export default function ProjectPage() {
   const architectureChart = `
     graph TD
-      Client["Client (Browser)"] -->|Next.js App Router| Server[Server Components]
+      Client["Client (PWA/Browser)"] -->|Next.js App Router| Server[Server Components]
       Client -->|Server Actions| Actions[Backend Logic]
+      Client -->|Direct API| Worker[Cloudflare AI Worker]
       
       subgraph "Backend Services"
         Actions -->|Drizzle ORM| DB[(Neon Postgres)]
-        Actions -->|Vercel AI SDK| OpenAI[OpenAI GPT-4]
         Actions -->|Stack Auth| Auth[Authentication]
       end
       
+      subgraph "AI Services"
+        Worker -->|Llama 3| Meta[Meta Llama 3]
+        Actions -->|Vercel AI SDK| OpenAI[OpenAI/Gateway]
+      end
+
       subgraph "Features"
         DB -->|Workshops Data| WorkshopList[Workshop Directory]
-        OpenAI -->|Classification| WorkshopAI[Workshop Auto-Tagging]
-        OpenAI -->|Chat Stream| MechanicAI[Mechanic Chatbot]
+        Worker -->|Analysis| PredictiveReport[Predictive Maintenance]
+        Actions -->|CSV| Export[Report Export]
       end
   `;
 
@@ -161,6 +166,12 @@ export default function ProjectPage() {
                       </div>
                       <span className="text-muted-foreground">Mayor visibilidad ante conductores con problemas cercanos.</span>
                     </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-1 bg-green-500/20 p-1 rounded-full">
+                        <Database className="w-3 h-3 text-green-600" />
+                      </div>
+                      <span className="text-muted-foreground">Exportación de reportes de actividad en CSV.</span>
+                    </li>
                   </ul>
                 </CardContent>
               </Card>
@@ -224,15 +235,15 @@ export default function ProjectPage() {
                     </h3>
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                        <span className="font-medium">Vercel AI SDK</span>
+                        <span className="font-medium">Cloudflare Workers</span>
                         <Bot className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                        <span className="font-medium">OpenAI GPT-4o</span>
+                        <span className="font-medium">Meta Llama 3</span>
                         <Badge variant="outline">Model</Badge>
                       </div>
                       <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                        <span className="font-medium">Generative UI</span>
+                        <span className="font-medium">Vercel AI SDK</span>
                         <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
                       </div>
                     </div>
@@ -250,6 +261,10 @@ export default function ProjectPage() {
                       <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
                         <span className="font-medium">Stack Auth</span>
                         <Shield className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                        <span className="font-medium">PWA Support</span>
+                        <Zap className="w-4 h-4 text-muted-foreground" />
                       </div>
                     </div>
                   </div>

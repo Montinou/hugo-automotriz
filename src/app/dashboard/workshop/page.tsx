@@ -1,4 +1,5 @@
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
+import { ReportExportButton } from "@/components/dashboard/ReportExportButton";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -37,7 +38,10 @@ export default async function WorkshopDashboard() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Panel de Control</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Panel de Control</h1>
+        <ReportExportButton />
+      </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

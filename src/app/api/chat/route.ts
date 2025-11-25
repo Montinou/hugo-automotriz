@@ -1,32 +1,97 @@
-import { openai } from '@/lib/ai';
-import { streamText } from 'ai';
-
 export const maxDuration = 30;
 
+const WORKER_URL = process.env.AI_WORKER_URL || "https://ai-worker.agusmontoya.workers.dev";
+
 export async function POST(req: Request) {
-  const { messages, vehicleContext } = await req.json();
+  try {
+    const body = await req.json();
+    const { messages, vehicleContext } = body;
 
-  const contextPrompt = vehicleContext 
-    ? `El usuario está consultando sobre el siguiente vehículo: ${vehicleContext}. Ten esto en cuenta para tus respuestas.`
-    : "";
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ messages, vehicleContext }),
+    });
 
-  const result = streamText({
-    model: openai('gpt-4o-mini'),
-    system: `Eres "Hugo", un asistente mecánico experto de la plataforma Hugo Automotriz en Bolivia.
-    
-    Tus características son:
-    - Eres servicial, paciente y muy conocedor de mecánica automotriz.
-    - Hablas español neutro pero amigable, usando términos comunes en Bolivia si es necesario (ej. "llanta" en vez de "neumático" a veces, pero mantén profesionalismo).
-    - Tu prioridad es la seguridad del conductor. Si detectas un problema peligroso, aconséjale detenerse y pedir una grúa inmediatamente.
-    - Conoces el contexto de Bolivia: terrenos difíciles, altura (La Paz/El Alto afecta motores), y marcas comunes (Toyota, Suzuki, Nissan).
-    - La moneda es Bolivianos (Bs).
-    - Si te preguntan precios, da rangos estimados en Bs y aclara que son aproximados.
-    
-    ${contextPrompt}
-    
-    Responde de manera concisa y útil. Usa formato Markdown para listas o negritas.`,
-    messages,
-  });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Worker error:", errorText);
+      throw new Error(`Worker error: ${response.status}`);
+    }
 
-  return result.toTextStreamResponse();
+    // The Cloudflare AI worker returns SSE stream
+    // We need to transform it to the format useChat expects
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error("No response body");
+    }
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+
+            // Process complete SSE events
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const data = line.slice(6);
+                if (data === "[DONE]") {
+                  controller.enqueue(encoder.encode("0:\"\"\n"));
+                  continue;
+                }
+                try {
+                  const parsed = JSON.parse(data);
+                  const text = parsed.response || parsed.choices?.[0]?.delta?.content || "";
+                  if (text) {
+                    // Format for useChat: "0:" prefix for text chunks
+                    controller.enqueue(encoder.encode(`0:${JSON.stringify(text)}\n`));
+                  }
+                } catch {
+                  // If not JSON, send as plain text
+                  if (data.trim()) {
+                    controller.enqueue(encoder.encode(`0:${JSON.stringify(data)}\n`));
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Stream processing error:", error);
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
+  } catch (error) {
+    console.error("Chat API Error:", error);
+    return new Response(
+      JSON.stringify({ error: "Error communicating with AI service" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 }

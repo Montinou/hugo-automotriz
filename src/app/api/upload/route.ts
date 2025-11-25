@@ -9,21 +9,29 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
-        // You can add authentication checks here
-        // const user = await stackServerApp.getUser();
-        // if (!user) throw new Error('Unauthorized');
-        
+        // Generate a client token for the browser to upload the file
+        // ⚠️ Authenticate and authorize users here, not in the browser
         return {
           allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif'],
           tokenPayload: JSON.stringify({
             // optional, sent to your server on upload completion
-            // could be user id, etc.
+            // you could pass a user id from auth, or a value from clientPayload
           }),
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // This is called when the upload is completed
+        // Get notified of client upload completion
+        // ⚠️ This will not work on `localhost` website,
+        // Use ngrok or similar to get the full upload flow
         console.log('blob uploaded', blob.url);
+
+        try {
+          // Run any logic after the file upload completed
+          // const { userId } = JSON.parse(tokenPayload);
+          // await db.update({ avatar: blob.url, userId });
+        } catch (error) {
+          throw new Error('Could not update user');
+        }
       },
     });
 
@@ -31,7 +39,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
-      { status: 400 }, // The webhook will retry 5 times automatically if the status code is 500-599.
+      { status: 400 }, // The webhook will retry 5 times automatically if the status code is 500-599
     );
   }
 }

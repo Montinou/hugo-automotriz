@@ -5,6 +5,7 @@ import { assistanceRequests, users, workshops, services } from "@/db/schema";
 import { stackServerApp } from "@/stack";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { sendPushNotification } from "@/lib/push";
 
 export async function acceptRequest(requestId: number) {
   const user = await stackServerApp.getUser();
@@ -16,16 +17,30 @@ export async function acceptRequest(requestId: number) {
 
   if (!dbUser) throw new Error("User not found");
 
-  // Verify user is a workshop owner or mechanic (logic can be stricter)
-  // For now, we assume if they are on the dashboard they have access
-  
+  // Get the request to find the driver
+  const request = await db.query.assistanceRequests.findFirst({
+    where: eq(assistanceRequests.id, requestId),
+    with: { user: true },
+  });
+
+  if (!request) throw new Error("Request not found");
+
   await db.update(assistanceRequests)
-    .set({ 
+    .set({
       status: "accepted",
       providerId: dbUser.id,
       updatedAt: new Date()
     })
     .where(eq(assistanceRequests.id, requestId));
+
+  // Send push notification to the driver
+  if (request.user.pushSubscription) {
+    await sendPushNotification(request.user.pushSubscription, {
+      title: "Solicitud Aceptada",
+      body: "Tu solicitud de asistencia ha sido aceptada. El técnico está en camino.",
+      url: "/dashboard/driver",
+    });
+  }
 
   revalidatePath("/dashboard/workshop/tickets");
 }
@@ -34,16 +49,61 @@ export async function completeRequest(requestId: number) {
   const user = await stackServerApp.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  // Verify ownership/provider status logic here
-  
+  const request = await db.query.assistanceRequests.findFirst({
+    where: eq(assistanceRequests.id, requestId),
+    with: { user: true },
+  });
+
+  if (!request) throw new Error("Request not found");
+
   await db.update(assistanceRequests)
-    .set({ 
+    .set({
       status: "completed",
       updatedAt: new Date()
     })
     .where(eq(assistanceRequests.id, requestId));
 
+  // Send push notification to the driver
+  if (request.user.pushSubscription) {
+    await sendPushNotification(request.user.pushSubscription, {
+      title: "Servicio Completado",
+      body: "Tu servicio de asistencia ha sido completado. ¡Gracias por confiar en nosotros!",
+      url: "/dashboard/driver/history",
+    });
+  }
+
   revalidatePath("/dashboard/workshop/tickets");
+}
+
+export async function cancelRequest(requestId: number) {
+  const user = await stackServerApp.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const request = await db.query.assistanceRequests.findFirst({
+    where: eq(assistanceRequests.id, requestId),
+    with: { user: true },
+  });
+
+  if (!request) throw new Error("Request not found");
+
+  await db.update(assistanceRequests)
+    .set({
+      status: "cancelled",
+      updatedAt: new Date()
+    })
+    .where(eq(assistanceRequests.id, requestId));
+
+  // Send push notification to the driver
+  if (request.user.pushSubscription) {
+    await sendPushNotification(request.user.pushSubscription, {
+      title: "Solicitud Cancelada",
+      body: "Tu solicitud de asistencia ha sido cancelada.",
+      url: "/dashboard/driver",
+    });
+  }
+
+  revalidatePath("/dashboard/workshop/tickets");
+  revalidatePath("/dashboard/driver");
 }
 
 export async function getWorkshops(filter?: string) {

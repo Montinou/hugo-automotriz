@@ -21,8 +21,8 @@ export default async function MechanicAIPage() {
     });
 
     if (dbUser?.vehicles && dbUser.vehicles.length > 0) {
-      vehicleContext = dbUser.vehicles.map(v => 
-        `${v.make} ${v.model} ${v.year} (${v.plate})`
+      vehicleContext = dbUser.vehicles.map(v =>
+        `${v.make || ""} ${v.model || ""} ${v.year || ""} (${v.plate || ""})`
       ).join(", ");
     }
   }

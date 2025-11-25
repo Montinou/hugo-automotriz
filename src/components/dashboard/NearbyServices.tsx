@@ -18,6 +18,11 @@ interface Place {
       lng: number;
     };
   };
+  photos?: {
+    photo_reference: string;
+    height: number;
+    width: number;
+  }[];
 }
 
 export function NearbyServices() {
@@ -124,6 +129,17 @@ export function NearbyServices() {
                   <div key={place.place_id} className="border rounded-lg p-3 hover:bg-muted/50 transition-colors flex flex-col gap-2">
                     <div className="font-medium truncate" title={place.name}>{place.name}</div>
                     <div className="text-xs text-muted-foreground truncate" title={place.vicinity}>{place.vicinity}</div>
+                    
+                    {place.photos && place.photos.length > 0 && (
+                      <div className="relative w-full h-32 mt-2 rounded-md overflow-hidden bg-muted">
+                        <img 
+                          src={`/api/places/photo?ref=${place.photos[0].photo_reference}`} 
+                          alt={place.name}
+                          className="object-cover w-full h-full"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
                     
                     <div className="flex items-center gap-1 text-xs mt-auto pt-2">
                       {place.rating && (
