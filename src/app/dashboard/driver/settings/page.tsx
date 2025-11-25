@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfileForm } from "@/components/dashboard/driver/ProfileForm";
 import { VehicleManager } from "@/components/dashboard/driver/VehicleManager";
+import { NotificationToggle } from "@/components/NotificationToggle";
 
 export default async function DriverSettingsPage() {
   const user = await stackServerApp.getUser();
@@ -44,6 +45,16 @@ export default async function DriverSettingsPage() {
       <Card>
         <CardContent className="pt-6">
           <VehicleManager vehicles={dbUser.vehicles} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Notificaciones</CardTitle>
+          <CardDescription>Recibe alertas cuando tu solicitud sea aceptada o cancelada.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NotificationToggle />
         </CardContent>
       </Card>
     </div>

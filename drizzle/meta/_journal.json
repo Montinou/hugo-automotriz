@@ -15,6 +15,13 @@
       "when": 1763604827038,
       "tag": "0001_glossy_wendigo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764099005755,
+      "tag": "0002_smart_zarek",
+      "breakpoints": true
     }
   ]
 }

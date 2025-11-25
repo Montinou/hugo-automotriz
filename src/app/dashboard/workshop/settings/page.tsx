@@ -4,6 +4,7 @@ import { stackServerApp } from "@/stack";
 import { eq } from "drizzle-orm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkshopSettingsForm } from "@/components/dashboard/workshop/WorkshopSettingsForm";
+import { NotificationToggle } from "@/components/NotificationToggle";
 
 export default async function WorkshopSettingsPage() {
   const user = await stackServerApp.getUser();
@@ -43,6 +44,16 @@ export default async function WorkshopSettingsPage() {
             longitude: workshop.longitude,
             imageUrl: workshop.imageUrl,
           } : null} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Notificaciones</CardTitle>
+          <CardDescription>Recibe alertas cuando lleguen nuevas solicitudes de servicio.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NotificationToggle />
         </CardContent>
       </Card>
     </div>

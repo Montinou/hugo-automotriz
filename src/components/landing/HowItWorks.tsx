@@ -20,7 +20,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-20 bg-background">
+    <section className="py-12 bg-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid gap-12 lg:grid-cols-2 items-center">
           <div className="space-y-8">

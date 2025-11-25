@@ -4,7 +4,7 @@ import { ArrowRight, Car, Wrench } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-background py-20 md:py-32">
+    <section className="relative overflow-hidden bg-background py-12 md:py-20">
       <div className="container relative z-10 mx-auto px-4 md:px-6">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
           <div className="flex flex-col justify-center space-y-8">

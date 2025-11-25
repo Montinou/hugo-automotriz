@@ -5,6 +5,7 @@ import { assistanceRequests, users, vehicles } from "@/db/schema";
 import { stackServerApp } from "@/stack";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { sendPushNotification } from "@/lib/push";
 
 export async function createAssistanceRequest(data: {
   latitude: number;
@@ -51,4 +52,32 @@ export async function getRequestStatus(requestId: number) {
     }
   });
   return request;
+}
+
+export async function cancelRequest(requestId: number) {
+  const user = await stackServerApp.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  // Get the request to check if there's an assigned provider
+  const request = await db.query.assistanceRequests.findFirst({
+    where: eq(assistanceRequests.id, requestId),
+    with: { provider: true },
+  });
+
+  await db.update(assistanceRequests)
+    .set({ status: "cancelled", updatedAt: new Date() })
+    .where(eq(assistanceRequests.id, requestId));
+
+  // Notify the provider if one was assigned
+  if (request?.provider?.pushSubscription) {
+    await sendPushNotification(request.provider.pushSubscription, {
+      title: "Solicitud Cancelada",
+      body: "El conductor ha cancelado la solicitud de asistencia.",
+      url: "/dashboard/workshop/tickets",
+    });
+  }
+
+  revalidatePath("/dashboard/request");
+  revalidatePath("/dashboard/workshop/tickets");
+  return { success: true };
 }
