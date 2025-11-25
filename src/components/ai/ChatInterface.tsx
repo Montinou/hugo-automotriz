@@ -6,6 +6,7 @@ interface Message {
   id: string;
   role: 'function' | 'data' | 'system' | 'user' | 'assistant' | 'tool';
   content: string;
+  data?: Record<string, unknown>;
 }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
