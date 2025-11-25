@@ -32,36 +32,101 @@ export default function ProjectPage() {
     erDiagram
       USERS ||--o{ VEHICLES : owns
       USERS ||--o{ WORKSHOPS : owns
-      USERS ||--o{ REQUESTS : makes
+      USERS ||--o{ ASSISTANCE_REQUESTS : makes
       USERS ||--o{ REVIEWS : writes
-      
+      USERS ||--o{ APPOINTMENTS : schedules
+      USERS ||--o{ CHAT_SESSIONS : has
+
       WORKSHOPS ||--o{ SERVICES : offers
       WORKSHOPS ||--o{ APPOINTMENTS : receives
       WORKSHOPS ||--o{ REVIEWS : receives
-      
-      VEHICLES ||--o{ REQUESTS : involved_in
+      WORKSHOPS ||--o{ PRODUCTS : sells
+
+      VEHICLES ||--o{ ASSISTANCE_REQUESTS : involved_in
       VEHICLES ||--o{ APPOINTMENTS : booked_for
-      
+
+      CHAT_SESSIONS ||--o{ CHAT_MESSAGES : contains
+      SERVICES ||--o{ APPOINTMENTS : booked_as
+
       USERS {
-        int id
-        string role "driver | workshop_owner"
-        string email
+        int id PK
+        string stackId UK
+        string email UK
+        enum role "driver-mechanic-workshop_owner-admin"
+        string fullName
+        string phone
       }
-      
+
+      VEHICLES {
+        int id PK
+        int userId FK
+        string make
+        string model
+        int year
+        string plate
+      }
+
       WORKSHOPS {
-        int id
+        int id PK
+        int ownerId FK
         string name
-        string[] tags
-        string description
+        string address
         decimal rating
+        array tags
       }
-      
-      REQUESTS {
-        int id
-        string type "tow | mechanic"
-        string status
+
+      SERVICES {
+        int id PK
+        int workshopId FK
+        string name
+        decimal price
+        enum type "tow-battery-tire-mechanic-other"
+      }
+
+      ASSISTANCE_REQUESTS {
+        int id PK
+        int userId FK
+        int providerId FK
+        enum status "pending-accepted-in_progress-completed"
         decimal latitude
         decimal longitude
+      }
+
+      APPOINTMENTS {
+        int id PK
+        int userId FK
+        int workshopId FK
+        int serviceId FK
+        timestamp date
+        enum status "pending-confirmed-completed"
+      }
+
+      REVIEWS {
+        int id PK
+        int userId FK
+        int workshopId FK
+        int rating
+        text comment
+      }
+
+      PRODUCTS {
+        int id PK
+        int workshopId FK
+        string name
+        decimal price
+        int stock
+      }
+
+      CHAT_SESSIONS {
+        int id PK
+        int userId FK
+      }
+
+      CHAT_MESSAGES {
+        int id PK
+        int sessionId FK
+        string role
+        text content
       }
   `;
 
