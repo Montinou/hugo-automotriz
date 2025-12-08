@@ -136,16 +136,16 @@ export default function ProjectPage() {
       <div className="relative overflow-hidden border-b bg-muted/40 pb-12 pt-16 md:pt-24">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
+            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80 animate-in fade-in zoom-in duration-500">
               v1.0.0 Release
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
               Asistencia Vehicular AI
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
               Plataforma inteligente de asistencia vehicular y gestión de talleres potenciada por Inteligencia Artificial.
             </p>
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-4 pt-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
               <Badge variant="secondary" className="px-4 py-1 text-sm">Next.js 15</Badge>
               <Badge variant="secondary" className="px-4 py-1 text-sm">AI SDK</Badge>
               <Badge variant="secondary" className="px-4 py-1 text-sm">Postgres</Badge>
@@ -171,7 +171,7 @@ export default function ProjectPage() {
 
           <TabsContent value="overview" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="border-none shadow-lg bg-gradient-to-br from-card to-muted/20">
+              <Card className="border-none shadow-lg bg-gradient-to-br from-card to-muted/20 hover:scale-[1.02] transition-transform duration-300 hover:shadow-xl">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                     <Car className="w-6 h-6 text-primary" />
@@ -203,7 +203,7 @@ export default function ProjectPage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-none shadow-lg bg-gradient-to-br from-card to-muted/20">
+              <Card className="border-none shadow-lg bg-gradient-to-br from-card to-muted/20 hover:scale-[1.02] transition-transform duration-300 hover:shadow-xl">
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                     <Wrench className="w-6 h-6 text-primary" />

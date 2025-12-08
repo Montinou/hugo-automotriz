@@ -7,6 +7,10 @@ export const requestStatusEnum = pgEnum("request_status", ["pending", "accepted"
 export const appointmentStatusEnum = pgEnum("appointment_status", ["pending", "confirmed", "completed", "cancelled"]);
 export const serviceTypeEnum = pgEnum("service_type", ["tow", "battery", "tire", "fuel", "mechanic", "maintenance", "other"]);
 
+// Subscription enums
+export const planEnum = pgEnum("plan", ["free", "pro", "enterprise"]);
+export const subscriptionStatusEnum = pgEnum("subscription_status", ["active", "inactive", "past_due"]);
+
 // Users Table
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -17,6 +21,10 @@ export const users = pgTable("users", {
   phone: text("phone"),
   avatarUrl: text("avatar_url"),
   pushSubscription: text("push_subscription"), // JSON string with Web Push subscription
+  // Subscription fields
+  plan: planEnum("plan").default("free").notNull(),
+  subscriptionStatus: subscriptionStatusEnum("subscription_status").default("inactive").notNull(),
+  subscriptionEndDate: timestamp("subscription_end_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

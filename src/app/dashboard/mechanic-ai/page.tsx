@@ -1,29 +1,50 @@
 import { ChatInterface } from "@/components/ai/ChatInterface";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, chatMessages, chatSessions } from "@/db/schema";
 import { stackServerApp } from "@/stack";
-import { eq } from "drizzle-orm";
+import { eq, and, gte } from "drizzle-orm";
 
 export default async function MechanicAIPage() {
   const user = await stackServerApp.getUser();
-  
-
 
   // Better approach: get user first then vehicles
   let vehicleContext = "No se encontraron vehículos registrados.";
-  
+  let userPlan: "free" | "pro" | "enterprise" = "free";
+  let dailyMessageCount = 0;
+
   if (user) {
     const dbUser = await db.query.users.findFirst({
       where: eq(users.stackId, user.id),
       with: {
-        vehicles: true
-      }
+        vehicles: true,
+        chatSessions: {
+          with: {
+            messages: true,
+          },
+        },
+      },
     });
 
-    if (dbUser?.vehicles && dbUser.vehicles.length > 0) {
-      vehicleContext = dbUser.vehicles.map(v =>
-        `${v.make || ""} ${v.model || ""} ${v.year || ""} (${v.plate || ""})`
-      ).join(", ");
+    if (dbUser) {
+      userPlan = dbUser.plan as "free" | "pro" | "enterprise";
+
+      // Count today's messages
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      dailyMessageCount = dbUser.chatSessions
+        ?.flatMap((s) => s.messages)
+        .filter((m) => m.role === "user" && new Date(m.createdAt) >= today)
+        .length || 0;
+
+      if (dbUser.vehicles && dbUser.vehicles.length > 0) {
+        vehicleContext = dbUser.vehicles
+          .map(
+            (v) =>
+              `${v.make || ""} ${v.model || ""} ${v.year || ""} (${v.plate || ""})`
+          )
+          .join(", ");
+      }
     }
   }
 
@@ -38,7 +59,11 @@ export default async function MechanicAIPage() {
 
       <div className="grid gap-8 md:grid-cols-3">
         <div className="md:col-span-2">
-          <ChatInterface vehicleContext={vehicleContext} />
+          <ChatInterface
+            vehicleContext={vehicleContext}
+            userPlan={userPlan}
+            dailyMessageCount={dailyMessageCount}
+          />
         </div>
         
         <div className="space-y-6">
