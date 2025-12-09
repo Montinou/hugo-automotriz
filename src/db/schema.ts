@@ -148,6 +148,19 @@ export const chatMessages = pgTable("chat_messages", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Payment Methods (métodos de pago guardados)
+export const paymentMethods = pgTable("payment_methods", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  cardholderName: text("cardholder_name").notNull(),
+  cardNumber: text("card_number").notNull(),
+  expiryMonth: integer("expiry_month").notNull(),
+  expiryYear: integer("expiry_year").notNull(),
+  cardType: text("card_type").notNull(),
+  isDefault: boolean("is_default").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Vehicle Service History (historial de servicios realizados al vehículo)
 export const vehicleServiceHistory = pgTable("vehicle_service_history", {
   id: serial("id").primaryKey(),
@@ -171,6 +184,14 @@ export const usersRelations = relations(users, ({ many }) => ({
   appointments: many(appointments),
   reviews: many(reviews),
   chatSessions: many(chatSessions),
+  paymentMethods: many(paymentMethods),
+}));
+
+export const paymentMethodsRelations = relations(paymentMethods, ({ one }) => ({
+  user: one(users, {
+    fields: [paymentMethods.userId],
+    references: [users.id],
+  }),
 }));
 
 export const chatSessionsRelations = relations(chatSessions, ({ one, many }) => ({
