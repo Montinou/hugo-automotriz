@@ -66,7 +66,7 @@ export function WorkshopSettingsForm({ initialData }: WorkshopSettingsFormProps)
         body: file,
       });
 
-      if (!response.ok) throw new Error('Upload failed');
+      if (!response.ok) throw new Error('Error al subir imagen');
       
       const newBlob = await response.json();
       setImageUrl(newBlob.url);

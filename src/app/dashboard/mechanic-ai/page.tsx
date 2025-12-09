@@ -53,7 +53,10 @@ export default async function MechanicAIPage() {
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4 space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Asistencia Vehicular AI</h1>
+        <h1 className="text-3xl font-bold">
+          <span className="text-accent">Asistencia</span>{" "}
+          <span className="text-primary">Vehicular AI</span>
+        </h1>
         <p className="text-muted-foreground">
           Consulta cualquier duda sobre tu vehículo, ruidos extraños o mantenimiento.
         </p>

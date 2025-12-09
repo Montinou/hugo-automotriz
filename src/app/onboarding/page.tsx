@@ -8,7 +8,10 @@ export default function OnboardingPage() {
   return (
     <div className="container mx-auto flex min-h-screen flex-col items-center justify-center py-10">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold">¡Bienvenido a Asistencia Vehicular AI!</h1>
+        <h1 className="text-3xl font-bold">
+          ¡Bienvenido a <span className="text-accent">Asistencia</span>{" "}
+          <span className="text-primary">Vehicular AI</span>!
+        </h1>
         <p className="text-muted-foreground">Para comenzar, cuéntanos cómo planeas usar la plataforma.</p>
       </div>
 

@@ -129,7 +129,8 @@ export default async function WorkshopProfilePage({ params }: { params: Promise<
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-5 w-5 text-green-500" />
                 <div className="text-sm text-green-600 font-medium">
-                  Taller Verificado por Asistencia Vehicular AI
+                  Taller Verificado por <span className="text-accent">Asistencia</span>{" "}
+                  <span className="text-primary">Vehicular AI</span>
                 </div>
               </div>
               

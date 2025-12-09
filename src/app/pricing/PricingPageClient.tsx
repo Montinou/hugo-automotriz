@@ -16,9 +16,9 @@ const PLANS = [
     price: 0,
     description: "Perfecto para comenzar",
     features: [
-      "Chat IA Hugo (5 mensajes/dia)",
-      "1 vehiculo registrado",
-      "Busqueda de talleres cercanos",
+      "Chat IA Hugo (5 mensajes/día)",
+      "1 vehículo registrado",
+      "Búsqueda de talleres cercanos",
       "Solicitar asistencia vial",
     ],
     isPopular: false,
@@ -30,8 +30,8 @@ const PLANS = [
     description: "Para conductores frecuentes",
     features: [
       "Chat IA Hugo ilimitado",
-      "Hasta 5 vehiculos",
-      "Analisis de mantenimiento predictivo",
+      "Hasta 5 vehículos",
+      "Análisis de mantenimiento predictivo",
       "Historial completo de servicios",
       "Soporte prioritario",
       "Descuentos en talleres asociados",
@@ -45,10 +45,10 @@ const PLANS = [
     description: "Para flotas y empresas",
     features: [
       "Todo lo de Pro",
-      "Vehiculos ilimitados",
-      "Panel de administracion de flota",
+      "Vehículos ilimitados",
+      "Panel de administración de flota",
       "Reportes avanzados (CSV/PDF)",
-      "API de integracion",
+      "API de integración",
       "Gerente de cuenta dedicado",
     ],
     isPopular: false,
@@ -80,14 +80,14 @@ export function PricingPageClient({ initialPlan }: PricingPageClientProps) {
             : `Bienvenido al plan ${plan.charAt(0).toUpperCase() + plan.slice(1)}!`,
           {
             description: plan !== "free"
-              ? "Tu suscripcion esta activa por 30 dias"
+              ? "Tu suscripción está activa por 30 días"
               : undefined,
           }
         );
         router.refresh();
       }
     } catch (error) {
-      toast.error("Error al procesar la suscripcion");
+      toast.error("Error al procesar la suscripción");
       console.error(error);
     } finally {
       setLoadingPlan(null);
@@ -116,7 +116,7 @@ export function PricingPageClient({ initialPlan }: PricingPageClientProps) {
             Elige tu Plan
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Desbloquea todo el potencial de Hugo AI y lleva el cuidado de tu vehiculo al siguiente nivel
+            Desbloquea todo el potencial de Hugo AI y lleva el cuidado de tu vehículo al siguiente nivel
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export function PricingPageClient({ initialPlan }: PricingPageClientProps) {
 
         {/* Footer note */}
         <p className="text-center text-sm text-muted-foreground mt-12">
-          Todos los precios estan en Bolivianos (Bs). Cancela cuando quieras.
+          Todos los precios están en Bolivianos (Bs). Cancela cuando quieras.
         </p>
       </div>
     </div>

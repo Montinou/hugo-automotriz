@@ -139,8 +139,9 @@ export default function ProjectPage() {
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80 animate-in fade-in zoom-in duration-500">
               v1.0.0 Release
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
-              Asistencia Vehicular AI
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
+              <span className="text-accent">Asistencia</span>{" "}
+              <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Vehicular AI</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
               Plataforma inteligente de asistencia vehicular y gestión de talleres potenciada por Inteligencia Artificial.
