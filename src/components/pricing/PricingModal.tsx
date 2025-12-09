@@ -81,6 +81,14 @@ export function PricingModal({
   const handleSubscribe = async (plan: PlanType) => {
     if (plan === activePlan) return;
 
+    // Para planes de pago, redirigir a la pagina de pago
+    if (plan === "pro" || plan === "enterprise") {
+      onOpenChange(false);
+      router.push("/dashboard/driver/payment");
+      return;
+    }
+
+    // Para plan gratuito, usar mockSubscribeAction
     setLoadingPlan(plan);
 
     try {
@@ -88,16 +96,7 @@ export function PricingModal({
 
       if (result.success) {
         setActivePlan(plan);
-        toast.success(
-          plan === "free"
-            ? "Has vuelto al plan gratuito"
-            : `Bienvenido al plan ${plan.charAt(0).toUpperCase() + plan.slice(1)}!`,
-          {
-            description: plan !== "free"
-              ? "Tu suscripcion esta activa por 30 dias"
-              : undefined,
-          }
-        );
+        toast.success("Has vuelto al plan gratuito");
         router.refresh();
         onOpenChange(false);
       }
