@@ -53,8 +53,8 @@ export function DashboardSidebar({ role, userPlan = "free" }: SidebarProps) {
         <h2 className="text-xl font-bold tracking-tight text-primary">AutoSmart AI</h2>
       </div>
 
-      {/* Upgrade Banner for Free Users */}
-      {userPlan === "free" && (
+      {/* Upgrade Banner for Free Drivers only (workshops have free unlimited access) */}
+      {userPlan === "free" && role !== "workshop_owner" && (
         <div className="mx-3 mb-4 p-3 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-primary" />
@@ -72,8 +72,8 @@ export function DashboardSidebar({ role, userPlan = "free" }: SidebarProps) {
         </div>
       )}
 
-      {/* Pro Badge for subscribed users */}
-      {userPlan !== "free" && (
+      {/* Pro Badge for subscribed drivers only */}
+      {userPlan !== "free" && role !== "workshop_owner" && (
         <div className="mx-3 mb-4 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 flex items-center gap-2">
           <Crown className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-primary capitalize">{userPlan}</span>
@@ -127,15 +127,18 @@ export function DashboardSidebar({ role, userPlan = "free" }: SidebarProps) {
               <p className="text-sm font-medium truncate">
                 {user?.displayName || "Usuario"}
               </p>
-              <Badge
-                variant={userPlan === "free" ? "secondary" : "default"}
-                className={cn(
-                  "text-[10px] px-1.5 py-0",
-                  userPlan !== "free" && "bg-primary"
-                )}
-              >
-                {userPlan === "free" ? "FREE" : userPlan.toUpperCase()}
-              </Badge>
+              {/* Badge only for drivers, workshops have free unlimited access */}
+              {role !== "workshop_owner" && (
+                <Badge
+                  variant={userPlan === "free" ? "secondary" : "default"}
+                  className={cn(
+                    "text-[10px] px-1.5 py-0",
+                    userPlan !== "free" && "bg-primary"
+                  )}
+                >
+                  {userPlan === "free" ? "FREE" : userPlan.toUpperCase()}
+                </Badge>
+              )}
             </div>
             <p className="text-xs text-muted-foreground truncate">
               {user?.primaryEmail || ""}

@@ -10,6 +10,7 @@ export default async function MechanicAIPage() {
   // Better approach: get user first then vehicles
   let vehicleContext = "No se encontraron vehículos registrados.";
   let userPlan: "free" | "pro" | "enterprise" = "free";
+  let userRole: "driver" | "workshop_owner" = "driver";
   let dailyMessageCount = 0;
 
   if (user) {
@@ -27,6 +28,7 @@ export default async function MechanicAIPage() {
 
     if (dbUser) {
       userPlan = dbUser.plan as "free" | "pro" | "enterprise";
+      userRole = dbUser.role as "driver" | "workshop_owner";
 
       // Count today's messages
       const today = new Date();
@@ -63,6 +65,7 @@ export default async function MechanicAIPage() {
             vehicleContext={vehicleContext}
             userPlan={userPlan}
             dailyMessageCount={dailyMessageCount}
+            userRole={userRole}
           />
         </div>
         

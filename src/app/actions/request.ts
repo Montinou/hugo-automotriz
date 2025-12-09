@@ -33,26 +33,31 @@ export async function createAssistanceRequest(data: {
 
   if (!dbUser) throw new Error("User not found");
 
-  // Verificar límite de solicitudes exitosas mensuales para usuarios free
-  const limit = REQUEST_LIMITS[dbUser.plan] || 1;
+  // Workshops have unlimited access (free to attract service providers)
+  const isWorkshop = dbUser.role === "workshop_owner";
 
-  if (limit !== Infinity) {
-    // Calcular inicio del mes actual
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
+  // Verificar límite de solicitudes exitosas mensuales para usuarios free (workshops exempt)
+  if (!isWorkshop) {
+    const limit = REQUEST_LIMITS[dbUser.plan] || 1;
 
-    // Contar solicitudes exitosas del mes (accepted, in_progress, completed)
-    const successfulRequests = await db.query.assistanceRequests.findMany({
-      where: and(
-        eq(assistanceRequests.userId, dbUser.id),
-        gte(assistanceRequests.createdAt, startOfMonth),
-        inArray(assistanceRequests.status, ["accepted", "in_progress", "completed"])
-      ),
-    });
+    if (limit !== Infinity) {
+      // Calcular inicio del mes actual
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
 
-    if (successfulRequests.length >= limit) {
-      throw new Error("REQUEST_LIMIT_REACHED");
+      // Contar solicitudes exitosas del mes (accepted, in_progress, completed)
+      const successfulRequests = await db.query.assistanceRequests.findMany({
+        where: and(
+          eq(assistanceRequests.userId, dbUser.id),
+          gte(assistanceRequests.createdAt, startOfMonth),
+          inArray(assistanceRequests.status, ["accepted", "in_progress", "completed"])
+        ),
+      });
+
+      if (successfulRequests.length >= limit) {
+        throw new Error("REQUEST_LIMIT_REACHED");
+      }
     }
   }
 

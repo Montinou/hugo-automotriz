@@ -14,6 +14,7 @@ export default async function DriverDashboard() {
   const user = await stackServerApp.getUser();
 
   let userPlan: "free" | "pro" | "enterprise" = "free";
+  let userRole: "driver" | "workshop_owner" = "driver";
   let dailyMessageCount = 0;
   let vehicleContext = "No se encontraron vehiculos registrados.";
   let userVehicles: { make: string; model: string; year: number; plate: string }[] = [];
@@ -40,6 +41,7 @@ export default async function DriverDashboard() {
 
     if (dbUser) {
       userPlan = dbUser.plan as "free" | "pro" | "enterprise";
+      userRole = dbUser.role as "driver" | "workshop_owner";
 
       // Count today's messages
       const today = new Date();
@@ -97,6 +99,7 @@ export default async function DriverDashboard() {
             vehicleContext={vehicleContext}
             userPlan={userPlan}
             dailyMessageCount={dailyMessageCount}
+            userRole={userRole}
           />
         </div>
 

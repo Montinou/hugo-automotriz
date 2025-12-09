@@ -25,6 +25,7 @@ interface ChatInterfaceProps {
   vehicleContext?: string;
   userPlan?: "free" | "pro" | "enterprise";
   dailyMessageCount?: number;
+  userRole?: "driver" | "workshop_owner";
 }
 
 const FREE_DAILY_LIMIT = 5;
@@ -36,7 +37,7 @@ const SUGGESTED_QUESTIONS = [
   "¿Cuánto cuesta un servicio de grúa?"
 ];
 
-export function ChatInterface({ vehicleContext, userPlan = "free", dailyMessageCount = 0 }: ChatInterfaceProps) {
+export function ChatInterface({ vehicleContext, userPlan = "free", dailyMessageCount = 0, userRole = "driver" }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,8 +49,11 @@ export function ChatInterface({ vehicleContext, userPlan = "free", dailyMessageC
   const router = useRouter();
   const { openPricingModal } = usePricingModal();
 
-  // Check if user has reached free limit
-  const isLimitReached = userPlan === "free" && messageCount >= FREE_DAILY_LIMIT;
+  // Workshops have unlimited access (free to attract them to provide services)
+  const isWorkshop = userRole === "workshop_owner";
+
+  // Check if user has reached free limit (workshops are exempt)
+  const isLimitReached = !isWorkshop && userPlan === "free" && messageCount >= FREE_DAILY_LIMIT;
   const remainingMessages = FREE_DAILY_LIMIT - messageCount;
 
   // Check for JSON actions in assistant messages
@@ -250,7 +254,8 @@ export function ChatInterface({ vehicleContext, userPlan = "free", dailyMessageC
               <p className="text-xs text-muted-foreground font-normal">Asistente Virtual Automotriz</p>
             </div>
           </div>
-          {userPlan === "free" && (
+          {/* Only show for drivers, workshops have free unlimited access */}
+          {userPlan === "free" && !isWorkshop && (
             <div className="flex items-center gap-2 text-xs">
               <span className={remainingMessages <= 2 ? "text-orange-500" : "text-muted-foreground"}>
                 {remainingMessages > 0 ? `${remainingMessages} msgs restantes` : "Limite alcanzado"}

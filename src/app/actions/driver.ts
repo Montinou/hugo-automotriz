@@ -55,12 +55,17 @@ export async function addVehicle(formData: FormData) {
     throw new Error("User not found in database");
   }
 
-  // Verificar límite de vehículos según el plan
-  const vehicleCount = dbUser.vehicles?.length || 0;
-  const limit = VEHICLE_LIMITS[dbUser.plan] || 1;
+  // Workshops have unlimited vehicle access (free to attract service providers)
+  const isWorkshop = dbUser.role === "workshop_owner";
 
-  if (vehicleCount >= limit) {
-    throw new Error("VEHICLE_LIMIT_REACHED");
+  // Verificar límite de vehículos según el plan (workshops exempt)
+  if (!isWorkshop) {
+    const vehicleCount = dbUser.vehicles?.length || 0;
+    const limit = VEHICLE_LIMITS[dbUser.plan] || 1;
+
+    if (vehicleCount >= limit) {
+      throw new Error("VEHICLE_LIMIT_REACHED");
+    }
   }
 
   try {
