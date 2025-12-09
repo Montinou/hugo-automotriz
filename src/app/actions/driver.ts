@@ -28,23 +28,39 @@ const vehicleSchema = z.object({
   year: z.coerce.number().min(1900).max(new Date().getFullYear() + 1),
   plate: z.string().min(1, "La placa es requerida"),
   color: z.string().optional(),
+  mileage: z.coerce.number().min(0).optional(),
 });
 
+// Límites de vehículos por plan
+const VEHICLE_LIMITS: Record<string, number> = {
+  free: 1,
+  pro: 5,
+  enterprise: Infinity,
+};
+
 export async function addVehicle(formData: FormData) {
-  console.log("addVehicle action started");
   const user = await stackServerApp.getUser();
   if (!user) {
-    console.error("No user found in stackServerApp");
     throw new Error("Unauthorized");
   }
 
   const dbUser = await db.query.users.findFirst({
     where: eq(users.stackId, user.id),
+    with: {
+      vehicles: true,
+    },
   });
 
   if (!dbUser) {
-    console.error("No dbUser found for clerkId:", user.id);
     throw new Error("User not found in database");
+  }
+
+  // Verificar límite de vehículos según el plan
+  const vehicleCount = dbUser.vehicles?.length || 0;
+  const limit = VEHICLE_LIMITS[dbUser.plan] || 1;
+
+  if (vehicleCount >= limit) {
+    throw new Error("VEHICLE_LIMIT_REACHED");
   }
 
   try {
@@ -54,8 +70,8 @@ export async function addVehicle(formData: FormData) {
       year: formData.get("year"),
       plate: formData.get("plate"),
       color: formData.get("color"),
+      mileage: formData.get("mileage") || undefined,
     };
-    console.log("Raw form data:", rawData);
 
     const validatedData = vehicleSchema.parse(rawData);
 
@@ -63,12 +79,14 @@ export async function addVehicle(formData: FormData) {
       userId: dbUser.id,
       ...validatedData,
       color: validatedData.color || null,
+      mileage: validatedData.mileage || null,
     });
-    console.log("Vehicle inserted successfully");
 
     revalidatePath("/dashboard/driver/settings");
   } catch (error) {
-    console.error("Error adding vehicle:", error);
+    if (error instanceof Error && error.message === "VEHICLE_LIMIT_REACHED") {
+      throw error;
+    }
     throw new Error("Failed to add vehicle: " + (error instanceof Error ? error.message : "Unknown error"));
   }
 }
@@ -90,5 +108,51 @@ export async function deleteVehicle(vehicleId: number) {
   }
 
   await db.delete(vehicles).where(eq(vehicles.id, vehicleId));
+  revalidatePath("/dashboard/driver/settings");
+}
+
+export async function updateVehicle(vehicleId: number, formData: FormData) {
+  const user = await stackServerApp.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  // Verify ownership
+  const vehicle = await db.query.vehicles.findFirst({
+    where: eq(vehicles.id, vehicleId),
+    with: {
+      user: true,
+    }
+  });
+
+  if (!vehicle || vehicle.user.stackId !== user.id) {
+    throw new Error("Unauthorized or vehicle not found");
+  }
+
+  const updateData: Partial<{
+    make: string;
+    model: string;
+    year: number;
+    plate: string;
+    color: string | null;
+    mileage: number | null;
+  }> = {};
+
+  const make = formData.get("make");
+  const model = formData.get("model");
+  const year = formData.get("year");
+  const plate = formData.get("plate");
+  const color = formData.get("color");
+  const mileage = formData.get("mileage");
+
+  if (make) updateData.make = make as string;
+  if (model) updateData.model = model as string;
+  if (year) updateData.year = parseInt(year as string);
+  if (plate) updateData.plate = plate as string;
+  if (color !== null) updateData.color = color as string || null;
+  if (mileage !== null) updateData.mileage = mileage ? parseInt(mileage as string) : null;
+
+  await db.update(vehicles)
+    .set({ ...updateData, updatedAt: new Date() })
+    .where(eq(vehicles.id, vehicleId));
+
   revalidatePath("/dashboard/driver/settings");
 }

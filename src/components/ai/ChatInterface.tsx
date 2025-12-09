@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { createAssistanceRequest } from "@/app/actions/request";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { usePricingModal } from "@/contexts/PricingModalContext";
 
 interface Message {
   id: string;
@@ -45,6 +46,7 @@ export function ChatInterface({ vehicleContext, userPlan = "free", dailyMessageC
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [messageCount, setMessageCount] = useState(dailyMessageCount);
   const router = useRouter();
+  const { openPricingModal } = usePricingModal();
 
   // Check if user has reached free limit
   const isLimitReached = userPlan === "free" && messageCount >= FREE_DAILY_LIMIT;
@@ -145,13 +147,7 @@ export function ChatInterface({ vehicleContext, userPlan = "free", dailyMessageC
   const sendMessage = async ({ text }: { text: string }) => {
     // Check limit before sending
     if (isLimitReached) {
-      toast.error("Has alcanzado el límite diario de mensajes", {
-        description: "Actualiza a Pro para chat ilimitado",
-        action: {
-          label: "Upgrade",
-          onClick: () => router.push("/pricing"),
-        },
-      });
+      openPricingModal("Has alcanzado el limite de 5 mensajes diarios. Actualiza a Pro para chat ilimitado.");
       return;
     }
 
@@ -257,13 +253,13 @@ export function ChatInterface({ vehicleContext, userPlan = "free", dailyMessageC
           {userPlan === "free" && (
             <div className="flex items-center gap-2 text-xs">
               <span className={remainingMessages <= 2 ? "text-orange-500" : "text-muted-foreground"}>
-                {remainingMessages > 0 ? `${remainingMessages} msgs restantes` : "Límite alcanzado"}
+                {remainingMessages > 0 ? `${remainingMessages} msgs restantes` : "Limite alcanzado"}
               </span>
               <Button
                 variant="outline"
                 size="sm"
                 className="h-7 text-xs border-primary/30 text-primary hover:bg-primary/10"
-                onClick={() => router.push("/pricing")}
+                onClick={() => openPricingModal("Actualiza a Pro para chat ilimitado y funciones avanzadas.")}
               >
                 <Crown className="h-3 w-3 mr-1" />
                 Pro
@@ -372,10 +368,10 @@ export function ChatInterface({ vehicleContext, userPlan = "free", dailyMessageC
         {isLimitReached && (
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-4">
             <Lock className="h-8 w-8 text-muted-foreground mb-2" />
-            <p className="text-sm font-medium text-center mb-2">Límite diario alcanzado</p>
+            <p className="text-sm font-medium text-center mb-2">Limite diario alcanzado</p>
             <Button
               size="sm"
-              onClick={() => router.push("/pricing")}
+              onClick={() => openPricingModal("Has alcanzado el limite de 5 mensajes diarios. Actualiza a Pro para chat ilimitado.")}
               className="bg-primary"
             >
               <Crown className="h-4 w-4 mr-2" />

@@ -6,8 +6,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Car, Wrench, Calendar, Home, Settings, BarChart3, History, LogOut, Bot, Crown, Sparkles, LucideIcon } from "lucide-react";
-import { useStackApp } from "@stackframe/stack";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Menu, Car, Wrench, Calendar, Settings, BarChart3, History, LogOut, Bot, Crown, Sparkles, LucideIcon, ChevronRight } from "lucide-react";
+import { useStackApp, useUser } from "@stackframe/stack";
 
 interface SidebarLink {
   href: string;
@@ -24,6 +26,7 @@ interface SidebarProps {
 export function DashboardSidebar({ role, userPlan = "free" }: SidebarProps) {
   const pathname = usePathname();
   const app = useStackApp();
+  const user = useUser();
 
   const driverLinks: SidebarLink[] = [
     { href: "/dashboard/driver", label: "Dashboard", icon: Bot, highlight: true },
@@ -107,15 +110,51 @@ export function DashboardSidebar({ role, userPlan = "free" }: SidebarProps) {
           })}
         </div>
       </ScrollArea>
-      <div className="px-3 py-4 mt-auto border-t">
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-          onClick={() => app.signOut()}
+      <div className="mt-auto border-t">
+        {/* User Profile Section */}
+        <Link
+          href={role === "workshop_owner" ? "/dashboard/workshop/settings" : "/dashboard/driver/settings"}
+          className="flex items-center gap-3 px-3 py-3 hover:bg-muted/50 transition-colors cursor-pointer group"
         >
-          <LogOut className="mr-2 h-4 w-4" />
-          Cerrar Sesión
-        </Button>
+          <Avatar className="h-9 w-9 border-2 border-primary/20">
+            <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.displayName || "Usuario"} />
+            <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+              {user?.displayName?.charAt(0)?.toUpperCase() || user?.primaryEmail?.charAt(0)?.toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium truncate">
+                {user?.displayName || "Usuario"}
+              </p>
+              <Badge
+                variant={userPlan === "free" ? "secondary" : "default"}
+                className={cn(
+                  "text-[10px] px-1.5 py-0",
+                  userPlan !== "free" && "bg-primary"
+                )}
+              >
+                {userPlan === "free" ? "FREE" : userPlan.toUpperCase()}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground truncate">
+              {user?.primaryEmail || ""}
+            </p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        </Link>
+
+        {/* Sign Out Button */}
+        <div className="px-3 py-2">
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={() => app.signOut()}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Cerrar Sesión
+          </Button>
+        </div>
       </div>
     </div>
   );

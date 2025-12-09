@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from "@/db";
-import { assistanceRequests, users, workshops, services } from "@/db/schema";
+import { assistanceRequests, users, workshops, services, vehicleServiceHistory, vehicles } from "@/db/schema";
 import { stackServerApp } from "@/stack";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -51,7 +51,7 @@ export async function completeRequest(requestId: number) {
 
   const request = await db.query.assistanceRequests.findFirst({
     where: eq(assistanceRequests.id, requestId),
-    with: { user: true },
+    with: { user: true, vehicle: true },
   });
 
   if (!request) throw new Error("Request not found");
@@ -63,16 +63,30 @@ export async function completeRequest(requestId: number) {
     })
     .where(eq(assistanceRequests.id, requestId));
 
+  // Registrar el servicio en el historial del vehículo
+  if (request.vehicleId) {
+    await db.insert(vehicleServiceHistory).values({
+      vehicleId: request.vehicleId,
+      assistanceRequestId: request.id,
+      serviceType: request.type,
+      description: request.description || "Servicio de asistencia",
+      mileageAtService: request.vehicle?.mileage || null,
+      cost: request.price || null,
+      serviceDate: new Date(),
+    });
+  }
+
   // Send push notification to the driver
   if (request.user.pushSubscription) {
     await sendPushNotification(request.user.pushSubscription, {
       title: "Servicio Completado",
-      body: "Tu servicio de asistencia ha sido completado. ¡Gracias por confiar en nosotros!",
+      body: "Tu servicio de asistencia ha sido completado. Gracias por confiar en nosotros!",
       url: "/dashboard/driver/history",
     });
   }
 
   revalidatePath("/dashboard/workshop/tickets");
+  revalidatePath("/dashboard/driver");
 }
 
 export async function cancelRequest(requestId: number) {

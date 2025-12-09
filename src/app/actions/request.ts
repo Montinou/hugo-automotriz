@@ -3,9 +3,16 @@
 import { db } from "@/db";
 import { assistanceRequests, users, vehicles } from "@/db/schema";
 import { stackServerApp } from "@/stack";
-import { eq } from "drizzle-orm";
+import { eq, and, gte, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { sendPushNotification } from "@/lib/push";
+
+// Límites de solicitudes exitosas por mes según plan
+const REQUEST_LIMITS: Record<string, number> = {
+  free: 1,
+  pro: Infinity,
+  enterprise: Infinity,
+};
 
 export async function createAssistanceRequest(data: {
   latitude: number;
@@ -26,7 +33,30 @@ export async function createAssistanceRequest(data: {
 
   if (!dbUser) throw new Error("User not found");
 
-  // Use first vehicle as default if not provided (logic can be improved)
+  // Verificar límite de solicitudes exitosas mensuales para usuarios free
+  const limit = REQUEST_LIMITS[dbUser.plan] || 1;
+
+  if (limit !== Infinity) {
+    // Calcular inicio del mes actual
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    // Contar solicitudes exitosas del mes (accepted, in_progress, completed)
+    const successfulRequests = await db.query.assistanceRequests.findMany({
+      where: and(
+        eq(assistanceRequests.userId, dbUser.id),
+        gte(assistanceRequests.createdAt, startOfMonth),
+        inArray(assistanceRequests.status, ["accepted", "in_progress", "completed"])
+      ),
+    });
+
+    if (successfulRequests.length >= limit) {
+      throw new Error("REQUEST_LIMIT_REACHED");
+    }
+  }
+
+  // Use first vehicle as default if not provided
   const vehicleId = data.vehicleId || (dbUser.vehicles.length > 0 ? dbUser.vehicles[0].id : null);
 
   const [newRequest] = await db.insert(assistanceRequests).values({
@@ -37,7 +67,7 @@ export async function createAssistanceRequest(data: {
     latitude: data.latitude.toString(),
     longitude: data.longitude.toString(),
     status: "pending",
-    price: "150.00", // Base price, logic should be dynamic
+    price: "150.00",
   }).returning();
 
   revalidatePath("/dashboard/request");

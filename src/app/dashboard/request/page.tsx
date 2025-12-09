@@ -10,6 +10,7 @@ import { ArrowLeft, MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { createAssistanceRequest } from "@/app/actions/request";
+import { usePricingModal } from "@/contexts/PricingModalContext";
 
 // Dynamically import MapPicker to avoid SSR issues with Leaflet
 const MapPicker = dynamic(() => import("@/components/assistance/MapPicker"), {
@@ -33,8 +34,9 @@ export default function RequestPage() {
   const [service, setService] = useState<ServiceType | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [requestId, setRequestId] = useState<number | null>(null);
-  
+
   const { latitude, longitude, loading: geoLoading } = useGeolocation();
+  const { openPricingModal } = usePricingModal();
 
   // Auto-set location when geolocation is available and not yet set manually
   useEffect(() => {
@@ -57,11 +59,15 @@ export default function RequestPage() {
         longitude: location.lng,
         serviceType: service,
       });
-      
+
       setRequestId(request.id);
       setStep("tracking");
-      toast.success("¡Solicitud enviada! Buscando proveedores cercanos...");
+      toast.success("Solicitud enviada! Buscando proveedores cercanos...");
     } catch (error) {
+      if (error instanceof Error && error.message.includes("REQUEST_LIMIT_REACHED")) {
+        openPricingModal("Has alcanzado el limite de 1 solicitud exitosa por mes. Actualiza a Pro para solicitudes ilimitadas.");
+        return;
+      }
       console.error(error);
       toast.error("Error al crear la solicitud. Intenta nuevamente.");
     } finally {

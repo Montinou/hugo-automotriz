@@ -14,8 +14,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Car } from "lucide-react";
+import { Plus, Trash2, Car, Gauge } from "lucide-react";
 import { toast } from "sonner";
+import { usePricingModal } from "@/contexts/PricingModalContext";
 
 interface Vehicle {
   id: number;
@@ -24,6 +25,7 @@ interface Vehicle {
   year: number;
   plate: string;
   color: string | null;
+  mileage: number | null;
 }
 
 interface VehicleManagerProps {
@@ -33,16 +35,22 @@ interface VehicleManagerProps {
 export function VehicleManager({ vehicles }: VehicleManagerProps) {
   const [isPending, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { openPricingModal } = usePricingModal();
 
   async function handleAddVehicle(formData: FormData) {
     startTransition(async () => {
       try {
         await addVehicle(formData);
-        toast.success("Vehículo agregado correctamente");
+        toast.success("Vehiculo agregado correctamente");
         setIsDialogOpen(false);
       } catch (error) {
+        if (error instanceof Error && error.message.includes("VEHICLE_LIMIT_REACHED")) {
+          setIsDialogOpen(false);
+          openPricingModal("Has alcanzado el limite de vehiculos de tu plan. Actualiza a Pro para registrar hasta 5 vehiculos.");
+          return;
+        }
         console.error(error);
-        toast.error("Error al agregar vehículo");
+        toast.error("Error al agregar vehiculo");
       }
     });
   }
@@ -95,7 +103,7 @@ export function VehicleManager({ vehicles }: VehicleManagerProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="year">Año</Label>
+                  <Label htmlFor="year">Ano</Label>
                   <Input id="year" name="year" type="number" placeholder="2020" required min="1900" max={new Date().getFullYear() + 1} />
                 </div>
                 <div className="space-y-2">
@@ -103,9 +111,15 @@ export function VehicleManager({ vehicles }: VehicleManagerProps) {
                   <Input id="color" name="color" placeholder="Blanco" />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="plate">Placa</Label>
-                <Input id="plate" name="plate" placeholder="1234ABC" required className="uppercase" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="plate">Placa</Label>
+                  <Input id="plate" name="plate" placeholder="1234ABC" required className="uppercase" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mileage">Kilometraje</Label>
+                  <Input id="mileage" name="mileage" type="number" placeholder="50000" min="0" />
+                </div>
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={isPending}>
@@ -132,15 +146,20 @@ export function VehicleManager({ vehicles }: VehicleManagerProps) {
                 </div>
                 <div>
                   <div className="font-medium">{vehicle.make} {vehicle.model} {vehicle.year}</div>
-                  <div className="text-xs text-muted-foreground flex gap-2">
+                  <div className="text-xs text-muted-foreground flex gap-2 flex-wrap">
                     <span>Placa: {vehicle.plate}</span>
                     {vehicle.color && <span>• {vehicle.color}</span>}
+                    {vehicle.mileage && (
+                      <span className="flex items-center gap-1">
+                        • <Gauge className="h-3 w-3" /> {vehicle.mileage.toLocaleString()} km
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 onClick={() => handleDeleteVehicle(vehicle.id)}
                 disabled={isPending}

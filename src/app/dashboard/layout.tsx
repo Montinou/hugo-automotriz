@@ -1,4 +1,5 @@
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import { DashboardProviders } from "@/components/providers/DashboardProviders";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { stackServerApp } from "@/stack";
@@ -29,14 +30,16 @@ export default async function DashboardLayout({
   const userPlan = (dbUser.plan || "free") as "free" | "pro" | "enterprise";
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <DashboardSidebar
-        role={dbUser.role as "driver" | "workshop_owner"}
-        userPlan={userPlan}
-      />
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 pt-16 md:pt-8">
-        {children}
-      </main>
-    </div>
+    <DashboardProviders userPlan={userPlan}>
+      <div className="flex min-h-screen bg-background">
+        <DashboardSidebar
+          role={dbUser.role as "driver" | "workshop_owner"}
+          userPlan={userPlan}
+        />
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 pt-16 md:pt-8">
+          {children}
+        </main>
+      </div>
+    </DashboardProviders>
   );
 }

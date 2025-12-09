@@ -39,6 +39,7 @@ export const vehicles = pgTable("vehicles", {
   plate: text("plate").notNull(),
   vin: text("vin"),
   color: text("color"),
+  mileage: integer("mileage"), // Kilometraje actual
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -147,6 +148,20 @@ export const chatMessages = pgTable("chat_messages", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Vehicle Service History (historial de servicios realizados al vehículo)
+export const vehicleServiceHistory = pgTable("vehicle_service_history", {
+  id: serial("id").primaryKey(),
+  vehicleId: integer("vehicle_id").references(() => vehicles.id).notNull(),
+  assistanceRequestId: integer("assistance_request_id").references(() => assistanceRequests.id),
+  serviceType: text("service_type").notNull(), // tow, battery, tire, fuel, mechanic, oil_change, etc.
+  description: text("description"),
+  mileageAtService: integer("mileage_at_service"), // Kilometraje al momento del servicio
+  cost: decimal("cost", { precision: 10, scale: 2 }),
+  serviceDate: timestamp("service_date").defaultNow().notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   vehicles: many(vehicles),
@@ -180,6 +195,18 @@ export const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
   }),
   assistanceRequests: many(assistanceRequests),
   appointments: many(appointments),
+  serviceHistory: many(vehicleServiceHistory),
+}));
+
+export const vehicleServiceHistoryRelations = relations(vehicleServiceHistory, ({ one }) => ({
+  vehicle: one(vehicles, {
+    fields: [vehicleServiceHistory.vehicleId],
+    references: [vehicles.id],
+  }),
+  assistanceRequest: one(assistanceRequests, {
+    fields: [vehicleServiceHistory.assistanceRequestId],
+    references: [assistanceRequests.id],
+  }),
 }));
 
 export const workshopsRelations = relations(workshops, ({ one, many }) => ({

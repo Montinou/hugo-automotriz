@@ -6,9 +6,9 @@ import Link from "next/link";
 import { ChatInterface } from "@/components/ai/ChatInterface";
 import { NearbyServices } from "@/components/dashboard/NearbyServices";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, vehicleServiceHistory } from "@/db/schema";
 import { stackServerApp } from "@/stack";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export default async function DriverDashboard() {
   const user = await stackServerApp.getUser();
@@ -22,7 +22,14 @@ export default async function DriverDashboard() {
     const dbUser = await db.query.users.findFirst({
       where: eq(users.stackId, user.id),
       with: {
-        vehicles: true,
+        vehicles: {
+          with: {
+            serviceHistory: {
+              orderBy: [desc(vehicleServiceHistory.serviceDate)],
+              limit: 5,
+            },
+          },
+        },
         chatSessions: {
           with: {
             messages: true,
@@ -50,9 +57,21 @@ export default async function DriverDashboard() {
           year: v.year,
           plate: v.plate,
         }));
-        vehicleContext = dbUser.vehicles
-          .map((v) => `${v.make} ${v.model} ${v.year} (${v.plate})`)
-          .join(", ");
+
+        // Construir contexto enriquecido con kilometraje e historial de servicios
+        vehicleContext = dbUser.vehicles.map((v) => {
+          const services = v.serviceHistory || [];
+          const servicesSummary = services.length > 0
+            ? `Servicios recientes: ${services.map(s => {
+                const date = new Date(s.serviceDate).toLocaleDateString('es-BO');
+                return `${s.serviceType} (${date})`;
+              }).join(", ")}`
+            : "Sin historial de servicios";
+
+          const mileageInfo = v.mileage ? `${v.mileage.toLocaleString()} km` : "Kilometraje no registrado";
+
+          return `${v.make} ${v.model} ${v.year} (${v.plate}) - ${mileageInfo}. ${servicesSummary}`;
+        }).join(" | ");
       }
     }
   }
