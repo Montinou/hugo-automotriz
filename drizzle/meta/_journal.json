@@ -22,6 +22,13 @@
       "when": 1764099005755,
       "tag": "0002_smart_zarek",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1765185713195,
+      "tag": "0003_narrow_dexter_bennett",
+      "breakpoints": true
     }
   ]
 }

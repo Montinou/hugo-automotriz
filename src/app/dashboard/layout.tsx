@@ -26,9 +26,14 @@ export default async function DashboardLayout({
     redirect("/onboarding");
   }
 
+  const userPlan = (dbUser.plan || "free") as "free" | "pro" | "enterprise";
+
   return (
     <div className="flex min-h-screen bg-background">
-      <DashboardSidebar role={dbUser.role as "driver" | "workshop_owner"} />
+      <DashboardSidebar
+        role={dbUser.role as "driver" | "workshop_owner"}
+        userPlan={userPlan}
+      />
       <main className="flex-1 overflow-y-auto p-4 md:p-8 pt-16 md:pt-8">
         {children}
       </main>
